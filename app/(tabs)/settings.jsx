@@ -1,11 +1,6 @@
-// app/(tabs)/settings.jsx
-// Settings Screen (Screen 7 in the PDF Wireframe)
-// Manages user preferences for expiry alerts, Google Calendar synchronization, and general defaults.
-
 import React, { useState } from 'react';
 import {
   Alert,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,38 +9,33 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppButton from '@/components/AppButton';
+import SimpleButton from '@/components/SimpleButton';
+import SimplePickerModal from '@/components/SimplePickerModal';
+import { colors, cardShadow } from '@/constants/theme';
+
+const reminderOptions = [
+  '1 day before',
+  '2 days before',
+  '3 days before',
+  '1 week before',
+];
+const sortOptions = ['Expiry Date', 'Item Name', 'Category'];
 
 export default function SettingsScreen() {
-  // 1. Notification preferences state
+  // El variables dol bey7afzo el settings elli el user ekhtarha.
   const [expiryAlerts, setExpiryAlerts] = useState(true);
   const [remindDays, setRemindDays] = useState('2 days before');
   const [showRemindPicker, setShowRemindPicker] = useState(false);
-
-  // 2. Google Calendar sync preferences state
   const [calendarConnected, setCalendarConnected] = useState(false);
   const [syncToCalendar, setSyncToCalendar] = useState(false);
-
-  // 3. General preferences state
   const [defaultSort, setDefaultSort] = useState('Expiry Date');
   const [showSortPicker, setShowSortPicker] = useState(false);
 
-  // Available options
-  const remindOptions = [
-    '1 day before',
-    '2 days before',
-    '3 days before',
-    '1 week before',
-  ];
-  const sortOptions = ['Expiry Date', 'Item Name', 'Category'];
-
-  // Toggle expiry alerts
-  function handleToggleAlerts() {
+  function toggleAlerts() {
     setExpiryAlerts(!expiryAlerts);
   }
 
-  // Handle Google Calendar connection
-  function handleConnectCalendar() {
+  function connectCalendar() {
     Alert.alert(
       'Google Calendar Integration',
       'Google Calendar OAuth 2.0 integration will be connected in the external services phase.\n\nSimulating connection now.',
@@ -61,8 +51,7 @@ export default function SettingsScreen() {
     );
   }
 
-  // Toggle calendar sync
-  function handleToggleCalendarSync() {
+  function toggleCalendarSync() {
     if (!calendarConnected) {
       Alert.alert(
         'Calendar Not Connected',
@@ -73,27 +62,33 @@ export default function SettingsScreen() {
     setSyncToCalendar(!syncToCalendar);
   }
 
-  // Show About Dialog
-  function handleShowAbout() {
+  function showAbout() {
     Alert.alert(
       'About Smart Food Tracker',
       'Smart Food Tracker v1.0\nMobile Application Development Course\n\nDesigned for tracking food shelf life and minimizing kitchen waste.'
     );
   }
 
+  function chooseReminder(option) {
+    setRemindDays(option);
+    setShowRemindPicker(false);
+  }
+
+  function chooseSort(option) {
+    setDefaultSort(option);
+    setShowSortPicker(false);
+  }
+
   return (
     <View style={styles.container}>
-      {/* Header */}
       <ScreenHeader title="Settings" />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ================= SECTION 1: NOTIFICATIONS ================= */}
         <Text style={styles.sectionHeading}>Notifications</Text>
 
-        {/* Row 1: Enable expiry alerts */}
         <View style={styles.settingCard}>
           <Text style={styles.settingLabel}>Enable expiry alerts</Text>
           <TouchableOpacity
@@ -101,7 +96,7 @@ export default function SettingsScreen() {
               styles.toggleButton,
               expiryAlerts ? styles.toggleOn : styles.toggleOff,
             ]}
-            onPress={handleToggleAlerts}
+            onPress={toggleAlerts}
             activeOpacity={0.7}
           >
             <Text style={styles.toggleText}>
@@ -110,7 +105,6 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Row 2: Remind me picker */}
         <TouchableOpacity
           style={styles.settingCard}
           onPress={() => setShowRemindPicker(true)}
@@ -120,23 +114,20 @@ export default function SettingsScreen() {
           <Text style={styles.dropdownArrow}>v</Text>
         </TouchableOpacity>
 
-        {/* ================= SECTION 2: GOOGLE CALENDAR ================= */}
-        <Text style={[styles.sectionHeading, { marginTop: 24 }]}>
+        <Text style={[styles.sectionHeading, styles.laterSection]}>
           Google Calendar
         </Text>
 
-        {/* Connect Google Calendar Button */}
-        <AppButton
+        <SimpleButton
           title={
             calendarConnected
-              ? 'Google Calendar Connected ✓'
+              ? 'Google Calendar Connected'
               : 'Connect Google Calendar'
           }
           variant="primary"
-          onPress={handleConnectCalendar}
+          onPress={connectCalendar}
         />
 
-        {/* Sync reminders to calendar row */}
         <View style={styles.settingCard}>
           <Text style={styles.settingLabel}>Sync reminders to calendar</Text>
           <TouchableOpacity
@@ -144,7 +135,7 @@ export default function SettingsScreen() {
               styles.toggleButton,
               syncToCalendar ? styles.toggleOn : styles.toggleOff,
             ]}
-            onPress={handleToggleCalendarSync}
+            onPress={toggleCalendarSync}
             activeOpacity={0.7}
           >
             <Text style={styles.toggleText}>
@@ -153,15 +144,12 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Last synced subtext */}
         <Text style={styles.lastSyncedText}>
           {calendarConnected ? 'Last synced: Just now' : 'Last synced: 23 Oct'}
         </Text>
 
-        {/* ================= SECTION 3: GENERAL ================= */}
-        <Text style={[styles.sectionHeading, { marginTop: 24 }]}>General</Text>
+        <Text style={[styles.sectionHeading, styles.laterSection]}>General</Text>
 
-        {/* Default sort picker */}
         <TouchableOpacity
           style={styles.settingCard}
           onPress={() => setShowSortPicker(true)}
@@ -171,7 +159,6 @@ export default function SettingsScreen() {
           <Text style={styles.dropdownArrow}>v</Text>
         </TouchableOpacity>
 
-        {/* Manage Categories shortcut */}
         <TouchableOpacity
           style={styles.settingCard}
           onPress={() => router.push('/categories')}
@@ -181,10 +168,9 @@ export default function SettingsScreen() {
           <Text style={styles.arrowText}>{'>'}</Text>
         </TouchableOpacity>
 
-        {/* About App button */}
         <TouchableOpacity
           style={styles.settingCard}
-          onPress={handleShowAbout}
+          onPress={showAbout}
           activeOpacity={0.7}
         >
           <Text style={styles.settingLabel}>About</Text>
@@ -192,65 +178,21 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Remind Me Options Modal */}
-      <Modal
+      <SimplePickerModal
         visible={showRemindPicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowRemindPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowRemindPicker(false)}
-        >
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Remind Me</Text>
-            {remindOptions.map((opt) => (
-              <TouchableOpacity
-                key={opt}
-                style={styles.modalOption}
-                onPress={() => {
-                  setRemindDays(opt);
-                  setShowRemindPicker(false);
-                }}
-              >
-                <Text style={styles.modalOptionText}>{opt}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        title="Remind Me"
+        options={reminderOptions}
+        onSelect={chooseReminder}
+        onClose={() => setShowRemindPicker(false)}
+      />
 
-      {/* Default Sort Options Modal */}
-      <Modal
+      <SimplePickerModal
         visible={showSortPicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowSortPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowSortPicker(false)}
-        >
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Default Sorting</Text>
-            {sortOptions.map((opt) => (
-              <TouchableOpacity
-                key={opt}
-                style={styles.modalOption}
-                onPress={() => {
-                  setDefaultSort(opt);
-                  setShowSortPicker(false);
-                }}
-              >
-                <Text style={styles.modalOptionText}>{opt}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        title="Default Sorting"
+        options={sortOptions}
+        onSelect={chooseSort}
+        onClose={() => setShowSortPicker(false)}
+      />
     </View>
   );
 }
@@ -258,108 +200,80 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 6,
     paddingBottom: 40,
   },
   sectionHeading: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111111',
-    marginBottom: 8,
+    fontSize: 19,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 10,
+  },
+  laterSection: {
+    marginTop: 24,
   },
   settingCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    minHeight: 58,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
     paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: '#ffffff',
-    marginVertical: 5,
+    paddingHorizontal: 16,
+    backgroundColor: colors.surface,
+    marginVertical: 6,
+    ...cardShadow,
   },
   settingLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#111111',
+    color: colors.text,
     flex: 1,
   },
-  // Pill toggle button [ On ] / [ Off ]
   toggleButton: {
     width: 60,
     height: 32,
     borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   toggleOn: {
-    backgroundColor: '#b5b5b5',
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
   },
   toggleOff: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   toggleText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   dropdownArrow: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333333',
+    color: colors.primary,
     marginLeft: 8,
   },
   arrowText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: colors.primary,
     marginLeft: 8,
   },
   lastSyncedText: {
     fontSize: 12,
-    color: '#666666',
+    color: colors.mutedText,
     marginTop: 6,
     marginBottom: 10,
     paddingHorizontal: 4,
-  },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 320,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    padding: 16,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#111111',
-    textAlign: 'center',
-  },
-  modalOption: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeeee',
-  },
-  modalOptionText: {
-    fontSize: 15,
-    color: '#222222',
-    textAlign: 'center',
   },
 });

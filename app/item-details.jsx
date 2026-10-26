@@ -1,11 +1,6 @@
-// app/item-details.jsx
-// Item Details Screen (Screen 6 in the PDF Wireframe)
-// Displays full food item details, quantity stepper, status segments, and actions to save or delete.
-
 import React, { useState } from 'react';
 import {
   Alert,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,64 +9,46 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppInput from '@/components/AppInput';
-import AppButton from '@/components/AppButton';
+import SimpleInput from '@/components/SimpleInput';
+import SimpleButton from '@/components/SimpleButton';
+import SimplePickerModal from '@/components/SimplePickerModal';
 import { sampleCategories, sampleItems } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
+
+const categoryNames = sampleCategories.map((category) => category.name);
+const statusOptions = ['Active', 'Consumed', 'Discarded'];
 
 export default function ItemDetailsScreen() {
-  // Read the item ID passed from Home or Inventory screen
   const params = useLocalSearchParams();
   const itemId = params.id ? parseInt(String(params.id), 10) : 2;
 
-  // Find the selected item from our sample dataset, or default to the first one
   const selectedItem =
     sampleItems.find((item) => item.id === itemId) || sampleItems[1];
 
-  // State variables for the item fields:
-  // 1. name: item name string
-  const [name, setName] = useState(selectedItem?.name || 'Fresh Milk 1L');
-
-  // 2. category: item category name
-  const [category, setCategory] = useState(selectedItem?.category || 'Dairy');
+  // El values dol beyebda2o be details el item, w beyett8ayaro lama el user ye3adelhom.
+  const [name, setName] = useState(selectedItem.name);
+  const [category, setCategory] = useState(selectedItem.category);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const [quantity, setQuantity] = useState(selectedItem.quantity);
+  const [expiryDate, setExpiryDate] = useState(selectedItem.expiryDate);
+  const [status, setStatus] = useState(selectedItem.status);
 
-  // 3. quantity: current count of the item
-  const [quantity, setQuantity] = useState(selectedItem?.quantity || 2);
-
-  // 4. expiryDate: expiry date formatted string
-  const [expiryDate, setExpiryDate] = useState(
-    selectedItem?.expiryDate || '26 / 10 / 2026'
-  );
-
-  // 5. barcode: read-only barcode value
-  const [barcode] = useState(selectedItem?.barcode || '5 012345 678900');
-
-  // 6. status: 'Active' | 'Consumed' | 'Discarded'
-  const [status, setStatus] = useState(selectedItem?.status || 'Active');
-
-  // Decrement quantity button handler (cannot go below 1)
-  function handleDecrement() {
+  function decreaseQuantity() {
     if (quantity > 1) {
       setQuantity(quantity - 1);
     }
   }
 
-  // Increment quantity button handler
-  function handleIncrement() {
+  function increaseQuantity() {
     setQuantity(quantity + 1);
   }
 
-  // Save changes handler
-  function handleSaveChanges() {
-    if (!name.trim()) {
+  function saveChanges() {
+    if (name.trim() === '') {
       Alert.alert('Validation Error', 'Item name cannot be empty.');
       return;
     }
 
-    // In the future SQLite database phase:
-    // UPDATE Item
-    // SET name = ?, categoryId = ?, quantity = ?, expiryDate = ?, status = ?
-    // WHERE id = ?;
     Alert.alert(
       'Changes Saved',
       `"${name}" has been updated successfully! (Local state demo)`,
@@ -84,8 +61,7 @@ export default function ItemDetailsScreen() {
     );
   }
 
-  // Delete item handler
-  function handleDeleteItem() {
+  function deleteItem() {
     Alert.alert(
       'Delete Item',
       `Are you sure you want to delete "${name}" from your inventory?`,
@@ -95,8 +71,6 @@ export default function ItemDetailsScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            // In the future SQLite phase:
-            // DELETE FROM Item WHERE id = ?;
             Alert.alert('Deleted', 'Item was removed.', [
               { text: 'OK', onPress: () => router.back() },
             ]);
@@ -106,9 +80,13 @@ export default function ItemDetailsScreen() {
     );
   }
 
+  function chooseCategory(selectedCategory) {
+    setCategory(selectedCategory);
+    setShowCategoryPicker(false);
+  }
+
   return (
     <View style={styles.container}>
-      {/* Header with back arrow */}
       <ScreenHeader title="Item Details" showBack={true} />
 
       <ScrollView
@@ -116,18 +94,16 @@ export default function ItemDetailsScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Item Name Field */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Item Name</Text>
-          <AppInput
+          <SimpleInput
             value={name}
             onChangeText={setName}
             placeholder="Item name"
-            style={{ marginVertical: 0 }}
+            style={styles.inputWithoutMargin}
           />
         </View>
 
-        {/* Category Selector */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Category</Text>
           <TouchableOpacity
@@ -140,28 +116,24 @@ export default function ItemDetailsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Quantity Stepper Control matching wireframe Page 6: [-] [ 2 ] [+] */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Quantity</Text>
           <View style={styles.stepperRow}>
-            {/* Decrement Button [-] */}
             <TouchableOpacity
               style={styles.stepperButton}
-              onPress={handleDecrement}
+              onPress={decreaseQuantity}
               activeOpacity={0.7}
             >
               <Text style={styles.stepperButtonText}>-</Text>
             </TouchableOpacity>
 
-            {/* Current Quantity Display Box */}
             <View style={styles.stepperValueBox}>
               <Text style={styles.stepperValueText}>{quantity}</Text>
             </View>
 
-            {/* Increment Button [+] */}
             <TouchableOpacity
               style={styles.stepperButton}
-              onPress={handleIncrement}
+              onPress={increaseQuantity}
               activeOpacity={0.7}
             >
               <Text style={styles.stepperButtonText}>+</Text>
@@ -169,16 +141,15 @@ export default function ItemDetailsScreen() {
           </View>
         </View>
 
-        {/* Expiry Date with [cal] helper button */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Expiry Date</Text>
           <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: 8 }}>
-              <AppInput
+            <View style={styles.inputBesideButton}>
+              <SimpleInput
                 value={expiryDate}
                 onChangeText={setExpiryDate}
                 placeholder="DD / MM / YYYY"
-                style={{ marginVertical: 0 }}
+                style={styles.inputWithoutMargin}
               />
             </View>
             <TouchableOpacity
@@ -193,117 +164,61 @@ export default function ItemDetailsScreen() {
           </View>
         </View>
 
-        {/* Barcode (read-only) dashed box matching wireframe Page 6 */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Barcode (read-only)</Text>
           <View style={styles.barcodeBox}>
-            <Text style={styles.barcodeText}>{barcode}</Text>
+            <Text style={styles.barcodeText}>{selectedItem.barcode}</Text>
           </View>
         </View>
 
-        {/* Status Segmented Buttons: [Active] [Consumed] [Discarded] */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Status</Text>
           <View style={styles.statusSegmentContainer}>
-            <TouchableOpacity
-              style={[
-                styles.statusSegment,
-                status === 'Active' && styles.statusSegmentActive,
-              ]}
-              onPress={() => setStatus('Active')}
-            >
-              <Text
-                style={[
-                  styles.statusSegmentText,
-                  status === 'Active' && styles.statusSegmentTextActive,
-                ]}
-              >
-                Active
-              </Text>
-            </TouchableOpacity>
+            {statusOptions.map((statusName) => {
+              const isSelected = status === statusName;
 
-            <TouchableOpacity
-              style={[
-                styles.statusSegment,
-                status === 'Consumed' && styles.statusSegmentActive,
-              ]}
-              onPress={() => setStatus('Consumed')}
-            >
-              <Text
-                style={[
-                  styles.statusSegmentText,
-                  status === 'Consumed' && styles.statusSegmentTextActive,
-                ]}
-              >
-                Consumed
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.statusSegment,
-                status === 'Discarded' && styles.statusSegmentActive,
-              ]}
-              onPress={() => setStatus('Discarded')}
-            >
-              <Text
-                style={[
-                  styles.statusSegmentText,
-                  status === 'Discarded' && styles.statusSegmentTextActive,
-                ]}
-              >
-                Discarded
-              </Text>
-            </TouchableOpacity>
+              return (
+                <TouchableOpacity
+                  key={statusName}
+                  style={[styles.statusSegment, isSelected && styles.statusSegmentActive]}
+                  onPress={() => setStatus(statusName)}
+                >
+                  <Text
+                    style={[
+                      styles.statusSegmentText,
+                      isSelected && styles.statusSegmentTextActive,
+                    ]}
+                  >
+                    {statusName}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
-        <View style={{ height: 24 }} />
+        <View style={styles.buttonSpacer} />
 
-        {/* Save Changes Button (Primary filled gray) */}
-        <AppButton
+        <SimpleButton
           title="Save Changes"
           variant="primary"
-          onPress={handleSaveChanges}
+          onPress={saveChanges}
         />
 
-        {/* Delete Item Button (Secondary outlined) */}
-        <AppButton
+        <SimpleButton
           title="Delete Item"
           variant="secondary"
-          onPress={handleDeleteItem}
+          onPress={deleteItem}
         />
       </ScrollView>
 
-      {/* Category Picker Modal */}
-      <Modal
+      <SimplePickerModal
         visible={showCategoryPicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowCategoryPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowCategoryPicker(false)}
-        >
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Select Category</Text>
-            {sampleCategories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={styles.modalOption}
-                onPress={() => {
-                  setCategory(cat.name);
-                  setShowCategoryPicker(false);
-                }}
-              >
-                <Text style={styles.modalOptionText}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        title="Select Category"
+        options={categoryNames}
+        onSelect={chooseCategory}
+        onClose={() => setShowCategoryPicker(false)}
+      />
     </View>
   );
 }
@@ -311,10 +226,11 @@ export default function ItemDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 8,
     paddingBottom: 40,
   },
   fieldGroup: {
@@ -323,109 +239,113 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
+    color: colors.text,
     marginBottom: 6,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  inputBesideButton: {
+    flex: 1,
+    marginRight: 8,
+  },
+  inputWithoutMargin: {
+    marginVertical: 0,
+  },
   pickerBox: {
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    height: 54,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   pickerValueText: {
     fontSize: 15,
-    color: '#111111',
+    color: colors.text,
     fontWeight: '500',
   },
   dropdownArrow: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333333',
+    color: colors.primary,
   },
-  // Stepper styles: [-] [ 2 ] [+]
   stepperRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   stepperButton: {
-    width: 44,
-    height: 44,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 8,
+    width: 48,
+    height: 48,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.primarySoft,
   },
   stepperButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   stepperValueBox: {
     width: 80,
-    height: 44,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    height: 48,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
     marginHorizontal: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   stepperValueText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.text,
   },
-  // Calendar button
   calButton: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
-    width: 48,
-    height: 48,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 14,
+    width: 54,
+    height: 54,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: colors.primarySoft,
+    ...cardShadow,
   },
   calButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#111111',
+    color: colors.primaryDark,
   },
-  // Dashed Barcode Box
   barcodeBox: {
-    height: 48,
-    borderWidth: 1.5,
+    height: 54,
+    borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#333333',
-    borderRadius: 4,
+    borderColor: colors.border,
+    borderRadius: 14,
     justifyContent: 'center',
     paddingHorizontal: 12,
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.surface,
   },
   barcodeText: {
     fontSize: 15,
     letterSpacing: 2,
-    color: '#333333',
+    color: colors.mutedText,
     fontFamily: 'monospace',
   },
-  // Status Segments
   statusSegmentContainer: {
     flexDirection: 'row',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
     overflow: 'hidden',
   },
   statusSegment: {
@@ -433,54 +353,23 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderRightWidth: 1,
-    borderRightColor: '#333333',
+    borderRightColor: colors.border,
   },
   statusSegmentActive: {
-    backgroundColor: '#b5b5b5',
+    backgroundColor: colors.primary,
   },
   statusSegmentText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
+    color: colors.mutedText,
   },
   statusSegmentTextActive: {
-    color: '#111111',
+    color: colors.surface,
     fontWeight: 'bold',
   },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 320,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    padding: 16,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#111111',
-    textAlign: 'center',
-  },
-  modalOption: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeeee',
-  },
-  modalOptionText: {
-    fontSize: 15,
-    color: '#222222',
-    textAlign: 'center',
+  buttonSpacer: {
+    height: 24,
   },
 });

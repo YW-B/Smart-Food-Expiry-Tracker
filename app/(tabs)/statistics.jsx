@@ -1,8 +1,3 @@
-// app/(tabs)/statistics.jsx
-// Waste Statistics Screen (Screen 9 in the PDF Wireframe)
-// Displays food consumption vs waste metrics, period selector (Week/Month/Year),
-// and beginner-friendly custom UI charts using pure React Native Views.
-
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -12,37 +7,27 @@ import {
   View,
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import StatCard from '@/components/StatCard';
+import NumberCard from '@/components/NumberCard';
 import { sampleStats } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
+
+const periods = ['Week', 'Month', 'Year'];
 
 export default function StatisticsScreen() {
-  // Period filter state: 'Week' | 'Month' | 'Year'
+  // El variable da bey7faz el period elli el user ekhtarha fo2.
   const [selectedPeriod, setSelectedPeriod] = useState('Week');
-
-  // Statistics data (will be computed from SQLite aggregate queries in the future:
-  // SELECT status, COUNT(*) FROM Item GROUP BY status;)
   const stats = sampleStats;
-
-  // Chart data for weekly items (bar heights scaled for beginner-friendly pure CSS rendering)
-  const weeklyBars = [
-    { label: 'W1', height: 70, value: 5 },
-    { label: 'W2', height: 110, value: 8 },
-    { label: 'W3', height: 50, value: 4 },
-    { label: 'W4', height: 95, value: 7 },
-  ];
 
   return (
     <View style={styles.container}>
-      {/* Screen Header */}
       <ScreenHeader title="Waste Statistics" />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Period Selector Tabs: [ Week ] [ Month ] [ Year ] */}
         <View style={styles.periodTabsRow}>
-          {['Week', 'Month', 'Year'].map((period) => (
+          {periods.map((period) => (
             <TouchableOpacity
               key={period}
               style={[
@@ -64,61 +49,52 @@ export default function StatisticsScreen() {
           ))}
         </View>
 
-        {/* Overview Stat Cards: Consumed vs Discarded */}
         <View style={styles.statsRow}>
-          <StatCard
+          <NumberCard
             label="Consumed:"
             value={stats.consumed}
             style={styles.statCard}
           />
-          <StatCard
+          <NumberCard
             label="Discarded:"
             value={stats.discarded}
             style={styles.statCard}
           />
         </View>
 
-        {/* Chart 1 Card: Items per week (Bar Chart) */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Items per week</Text>
 
           <View style={styles.barChartContainer}>
-            {/* The 4 vertical bars */}
             <View style={styles.barsArea}>
-              {weeklyBars.map((bar) => (
+              {stats.weeklyData.map((bar) => (
                 <View key={bar.label} style={styles.barColumn}>
-                  <View style={[styles.barVisual, { height: bar.height }]} />
+                  <View style={[styles.barVisual, { height: bar.value * 14 }]} />
                   <Text style={styles.barLabel}>{bar.label}</Text>
                 </View>
               ))}
             </View>
 
-            {/* Horizontal baseline line matching wireframe */}
             <View style={styles.chartBaseline} />
           </View>
         </View>
 
-        {/* Chart 2 Card: Consumed vs Discarded (Circular/Donut visualization) */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Consumed vs Discarded</Text>
 
           <View style={styles.pieRow}>
-            {/* Circular Donut Diagram */}
             <View style={styles.circleDiagram}>
               <View style={styles.circleInner}>
                 <Text style={styles.circleRatioText}>75 / 25</Text>
               </View>
             </View>
 
-            {/* Legend on the right */}
             <View style={styles.legendContainer}>
-              {/* Consumed Legend */}
               <View style={styles.legendItem}>
                 <View style={styles.legendBoxConsumed} />
                 <Text style={styles.legendLabel}>Consumed</Text>
               </View>
 
-              {/* Discarded Legend */}
               <View style={styles.legendItem}>
                 <View style={styles.legendBoxDiscarded} />
                 <Text style={styles.legendLabel}>Discarded</Text>
@@ -127,7 +103,6 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        {/* Waste Rate Metric Text matching wireframe bottom */}
         <View style={styles.wasteRateContainer}>
           <Text style={styles.wasteRateText}>
             Waste rate: {stats.wasteRate}
@@ -141,43 +116,43 @@ export default function StatisticsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 6,
     paddingBottom: 40,
   },
-  // Top period tabs row [Week] [Month] [Year]
   periodTabsRow: {
     flexDirection: 'row',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
+    backgroundColor: colors.surface,
   },
   periodTab: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderRightWidth: 1,
-    borderRightColor: '#333333',
+    borderRightColor: colors.border,
   },
   periodTabActive: {
-    backgroundColor: '#b5b5b5',
+    backgroundColor: colors.primary,
   },
   periodTabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
+    color: colors.mutedText,
   },
   periodTabTextActive: {
-    color: '#111111',
+    color: colors.surface,
     fontWeight: 'bold',
   },
-  // Overview stats row
   statsRow: {
     flexDirection: 'row',
     marginBottom: 16,
@@ -185,22 +160,21 @@ const styles = StyleSheet.create({
   statCard: {
     marginHorizontal: 4,
   },
-  // Chart container card matching wireframe
   chartCard: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 6,
-    padding: 16,
-    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 20,
+    padding: 18,
+    backgroundColor: colors.surface,
     marginBottom: 16,
+    ...cardShadow,
   },
   chartTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.text,
     marginBottom: 16,
   },
-  // Bar chart layout
   barChartContainer: {
     alignItems: 'center',
     paddingTop: 10,
@@ -220,22 +194,21 @@ const styles = StyleSheet.create({
   },
   barVisual: {
     width: 38,
-    backgroundColor: '#b5b5b5',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.primary,
+    borderWidth: 0,
+    borderRadius: 8,
   },
   barLabel: {
     marginTop: 6,
     fontSize: 12,
     fontWeight: '600',
-    color: '#444444',
+    color: colors.mutedText,
   },
   chartBaseline: {
     width: '100%',
     height: 2,
-    backgroundColor: '#333333',
+    backgroundColor: colors.border,
   },
-  // Donut diagram layout
   pieRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -246,9 +219,9 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     borderRadius: 65,
-    backgroundColor: '#b5b5b5',
-    borderWidth: 2,
-    borderColor: '#333333',
+    backgroundColor: colors.primary,
+    borderWidth: 8,
+    borderColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -256,16 +229,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.surface,
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   circleRatioText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   legendContainer: {
     justifyContent: 'center',
@@ -278,25 +250,24 @@ const styles = StyleSheet.create({
   legendBoxConsumed: {
     width: 18,
     height: 18,
-    backgroundColor: '#b5b5b5',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.primary,
+    borderWidth: 0,
+    borderRadius: 5,
     marginRight: 10,
   },
   legendBoxDiscarded: {
     width: 18,
     height: 18,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.accent,
+    borderWidth: 0,
+    borderRadius: 5,
     marginRight: 10,
   },
   legendLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#222222',
+    color: colors.text,
   },
-  // Waste rate bottom text
   wasteRateContainer: {
     marginTop: 4,
     paddingHorizontal: 4,
@@ -304,6 +275,6 @@ const styles = StyleSheet.create({
   wasteRateText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
 });

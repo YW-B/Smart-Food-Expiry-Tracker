@@ -1,10 +1,11 @@
-// components/ScreenHeader.jsx
-// A reusable beginner-friendly screen header bar.
-// Displays the screen title, an optional back button, and an optional right action element.
+// El component da howa el header elli benesta5demo fo2 fel screens.
+// Momken ye3red title, back button, aw button tani 3al yemeen.
 
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, cardShadow } from '@/constants/theme';
 
 /**
  * ScreenHeader
@@ -19,7 +20,7 @@ export default function ScreenHeader({
   onBack,
   rightElement = null,
 }) {
-  // If the user provided a custom back function, call it, otherwise go back with Expo Router
+  // Law fe custom back function nesta5demha, gheir keda nerga3 be Expo Router.
   function handleBackPress() {
     if (onBack) {
       onBack();
@@ -29,69 +30,77 @@ export default function ScreenHeader({
   }
 
   return (
-    <View style={styles.header}>
-      {/* Left Slot: Back Button or spacer */}
-      <View style={styles.sideSlot}>
-        {showBack ? (
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBackPress}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Text style={styles.backArrow}>{'<'}</Text>
-          </TouchableOpacity>
-        ) : null}
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.header}>
+        {/* El makan da lel back button aw space fady. */}
+        <View style={styles.sideSlot}>
+          {showBack ? (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBackPress}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Text style={styles.backArrow}>{'<'}</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
 
-      {/* Center Slot: Screen Title */}
-      <View style={styles.centerSlot}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-      </View>
+        {/* Hena ben3red esm el screen fel nos. */}
+        <View style={styles.centerSlot}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
 
-      {/* Right Slot: Custom action or spacer */}
-      <View style={[styles.sideSlot, styles.rightSlot]}>
-        {rightElement}
+        {/* El makan da le ay action 3al yemeen aw space fady. */}
+        <View style={[styles.sideSlot, styles.rightSlot]}>
+          {rightElement}
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: colors.background,
+  },
   header: {
-    height: 60,
-    backgroundColor: '#e6e6e6',
-    borderBottomWidth: 1.5,
-    borderBottomColor: '#333333',
+    height: 68,
+    backgroundColor: colors.background,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
   },
   sideSlot: {
-    width: 60,
+    width: 84,
     justifyContent: 'center',
   },
   rightSlot: {
     alignItems: 'flex-end',
   },
   backButton: {
-    paddingVertical: 6,
-    paddingRight: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    ...cardShadow,
   },
   backArrow: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   centerSlot: {
     flex: 1,
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111111',
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.text,
   },
 });

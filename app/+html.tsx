@@ -1,10 +1,8 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import type { ReactNode } from 'react';
 
-// This file is web-only and used to configure the root HTML for every
-// web page during static rendering.
-// The contents of this function only run in Node.js environments and
-// do not have access to the DOM or browser APIs.
+// El file da lel web bas, w beygahez el HTML el asasy le kol page.
+// El function de beteshta8al fel Node.js, fa mesh beta2dar testa5dem el DOM.
 export default function Root({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -13,15 +11,12 @@ export default function Root({ children }: { children: ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-        {/*
-          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
-          However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
-        */}
+        {/* Da beywa2af scroll el body 3ashan ScrollView teshta8al zay el mobile. */}
         <ScrollViewStyleReset />
 
-        {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
+        {/* Ben5aly background el web nafs lawn el wireframe el fate7. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
-        {/* Add any additional <head> elements that you want globally available on web... */}
+        {/* Momken nezawed hena ay element mo7tagino gowwa head 3al web. */}
       </head>
       <body>{children}</body>
     </html>
@@ -30,10 +25,6 @@ export default function Root({ children }: { children: ReactNode }) {
 
 const responsiveBackground = `
 body {
-  background-color: #fff;
+  background-color: #F5F7F4;
 }
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #000;
-  }
-}`;
+`;
