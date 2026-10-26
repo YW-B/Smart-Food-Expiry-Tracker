@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppButton from '@/components/AppButton';
+import SimpleButton from '@/components/SimpleButton';
 
 export default function ScannerScreen() {
   // Local state to track whether the flashlight is turned on or off
@@ -78,7 +78,7 @@ export default function ScannerScreen() {
           </Text>
 
           {/* Button to confirm using the detected item */}
-          <AppButton
+          <SimpleButton
             title="Use This Item"
             variant="primary"
             onPress={handleUseScannedItem}

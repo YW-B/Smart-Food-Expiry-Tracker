@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppButton from '@/components/AppButton';
+import SimpleButton from '@/components/SimpleButton';
 
 export default function SettingsScreen() {
   // 1. Notification preferences state
@@ -126,7 +126,7 @@ export default function SettingsScreen() {
         </Text>
 
         {/* Connect Google Calendar Button */}
-        <AppButton
+        <SimpleButton
           title={
             calendarConnected
               ? 'Google Calendar Connected ✓'

@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppButton from '@/components/AppButton';
+import SimpleButton from '@/components/SimpleButton';
 import { sampleCategories } from '@/data/sampleData';
 
 export default function CategoriesScreen() {
@@ -129,7 +129,7 @@ export default function CategoriesScreen() {
 
       {/* Bottom Button: + Add Category */}
       <View style={styles.bottomBar}>
-        <AppButton
+        <SimpleButton
           title="+ Add Category"
           variant="primary"
           onPress={() => {

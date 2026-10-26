@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppInput from '@/components/AppInput';
-import AppButton from '@/components/AppButton';
+import SimpleInput from '@/components/SimpleInput';
+import SimpleButton from '@/components/SimpleButton';
 import { sampleCategories } from '@/data/sampleData';
 
 export default function AddItemScreen() {
@@ -107,7 +107,7 @@ export default function AddItemScreen() {
           <Text style={styles.label}>Item Name</Text>
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 8 }}>
-              <AppInput
+              <SimpleInput
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter item name"
@@ -147,7 +147,7 @@ export default function AddItemScreen() {
           {/* Quantity Input */}
           <View style={{ flex: 1, marginRight: 8 }}>
             <Text style={styles.label}>Quantity</Text>
-            <AppInput
+            <SimpleInput
               value={quantity}
               onChangeText={setQuantity}
               placeholder="0"
@@ -177,7 +177,7 @@ export default function AddItemScreen() {
           <Text style={styles.label}>Expiry Date</Text>
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 8 }}>
-              <AppInput
+              <SimpleInput
                 value={expiryDate}
                 onChangeText={setExpiryDate}
                 placeholder="DD / MM / YYYY"
@@ -200,14 +200,14 @@ export default function AddItemScreen() {
         <View style={{ height: 40 }} />
 
         {/* Save Item Button (Primary filled gray) */}
-        <AppButton
+        <SimpleButton
           title="Save Item"
           variant="primary"
           onPress={handleSaveItem}
         />
 
         {/* Cancel Button (Secondary outlined) */}
-        <AppButton
+        <SimpleButton
           title="Cancel"
           variant="secondary"
           onPress={() => router.back()}

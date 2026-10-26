@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import ItemCard from '@/components/ItemCard';
+import FoodItemCard from '@/components/FoodItemCard';
 import { sampleItems } from '@/data/sampleData';
 
 export default function InventoryScreen() {
@@ -175,7 +175,7 @@ export default function InventoryScreen() {
           const badgeText = item.daysLeft < 0 ? 'exp' : `${item.daysLeft}d`;
 
           return (
-            <ItemCard
+            <FoodItemCard
               key={item.id}
               item={item}
               subtitle={`${item.category} - ${item.expiryDate}`}

@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import AppInput from '@/components/AppInput';
-import AppButton from '@/components/AppButton';
+import SimpleInput from '@/components/SimpleInput';
+import SimpleButton from '@/components/SimpleButton';
 import { sampleCategories, sampleItems } from '@/data/sampleData';
 
 export default function ItemDetailsScreen() {
@@ -119,7 +119,7 @@ export default function ItemDetailsScreen() {
         {/* Item Name Field */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Item Name</Text>
-          <AppInput
+          <SimpleInput
             value={name}
             onChangeText={setName}
             placeholder="Item name"
@@ -174,7 +174,7 @@ export default function ItemDetailsScreen() {
           <Text style={styles.label}>Expiry Date</Text>
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 8 }}>
-              <AppInput
+              <SimpleInput
                 value={expiryDate}
                 onChangeText={setExpiryDate}
                 placeholder="DD / MM / YYYY"
@@ -261,14 +261,14 @@ export default function ItemDetailsScreen() {
         <View style={{ height: 24 }} />
 
         {/* Save Changes Button (Primary filled gray) */}
-        <AppButton
+        <SimpleButton
           title="Save Changes"
           variant="primary"
           onPress={handleSaveChanges}
         />
 
         {/* Delete Item Button (Secondary outlined) */}
-        <AppButton
+        <SimpleButton
           title="Delete Item"
           variant="secondary"
           onPress={handleDeleteItem}

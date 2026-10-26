@@ -6,8 +6,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
-import StatCard from '@/components/StatCard';
-import ItemCard from '@/components/ItemCard';
+import NumberCard from '@/components/NumberCard';
+import FoodItemCard from '@/components/FoodItemCard';
 import { sampleItems } from '@/data/sampleData';
 
 export default function HomeScreen() {
@@ -47,9 +47,9 @@ export default function HomeScreen() {
       >
         {/* Top Overview Cards row: Expiring Soon, Expired, Total Items */}
         <View style={styles.statsRow}>
-          <StatCard label="Expiring Soon:" value={expiringSoonCount || 3} />
-          <StatCard label="Expired:" value={expiredCount || 1} />
-          <StatCard label="Total Items:" value={totalItemsCount} />
+          <NumberCard label="Expiring Soon:" value={expiringSoonCount || 3} />
+          <NumberCard label="Expired:" value={expiredCount || 1} />
+          <NumberCard label="Total Items:" value={totalItemsCount} />
         </View>
 
         {/* Section title matching wireframe Page 1 */}
@@ -57,7 +57,7 @@ export default function HomeScreen() {
 
         {/* List of expiring items */}
         {expiringThisWeek.map((item) => (
-          <ItemCard
+          <FoodItemCard
             key={item.id}
             item={item}
             subtitle={`${item.category} - ${item.daysLeft} days`}

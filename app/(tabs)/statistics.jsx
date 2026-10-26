@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import StatCard from '@/components/StatCard';
+import NumberCard from '@/components/NumberCard';
 import { sampleStats } from '@/data/sampleData';
 
 export default function StatisticsScreen() {
@@ -66,12 +66,12 @@ export default function StatisticsScreen() {
 
         {/* Overview Stat Cards: Consumed vs Discarded */}
         <View style={styles.statsRow}>
-          <StatCard
+          <NumberCard
             label="Consumed:"
             value={stats.consumed}
             style={styles.statCard}
           />
-          <StatCard
+          <NumberCard
             label="Discarded:"
             value={stats.discarded}
             style={styles.statCard}

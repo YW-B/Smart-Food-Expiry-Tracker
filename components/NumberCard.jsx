@@ -1,17 +1,9 @@
-// components/StatCard.jsx
-// A reusable stat card component to display counts and metrics.
-// Used on the Home Dashboard and Waste Statistics screens.
+// A reusable card for one label and one number.
 
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-/**
- * StatCard
- * @param {string} label - Title or description of the stat (e.g. "Expiring Soon", "Consumed")
- * @param {string | number} value - The numerical value to show (e.g. 3, 24, "25%")
- * @param {object} style - Optional extra style for custom widths or backgrounds
- */
-export default function StatCard({ label, value, style }) {
+export default function NumberCard({ label, value, style }) {
   return (
     <View style={[styles.card, style]}>
       <Text style={styles.label} numberOfLines={2}>
