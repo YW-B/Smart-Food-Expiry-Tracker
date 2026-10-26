@@ -1,10 +1,5 @@
-// app/scanner.jsx
-// Scan Barcode Screen (Screen 3 in the PDF Wireframe)
-// Barcode scanner viewfinder interface with simulated scan detection card.
-
 import React, { useState } from 'react';
 import {
-  Alert,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,81 +10,66 @@ import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
 
 export default function ScannerScreen() {
-  // Local state to track whether the flashlight is turned on or off
+  // This value remembers whether the flash button is on or off.
   const [flashOn, setFlashOn] = useState(false);
-
-  // Simulated detected item from barcode scan
   const detectedProduct = 'Fresh Milk 1L';
 
-  // Toggle flash state
-  function handleToggleFlash() {
+  function toggleFlash() {
     setFlashOn(!flashOn);
   }
 
-  // Use the scanned product: navigate back to Add Item screen with product name pre-filled
-  function handleUseScannedItem() {
-    // We pass the scanned item name as a query parameter in Expo Router
+  function useScannedItem() {
     router.replace({
       pathname: '/add-item',
       params: { scannedName: detectedProduct },
     });
   }
 
-  // Manual entry fallback
-  function handleEnterManually() {
+  function enterManually() {
     router.back();
   }
 
   return (
     <View style={styles.container}>
-      {/* Top Header with Back Button */}
       <ScreenHeader title="Scan Barcode" showBack={true} />
 
       <View style={styles.content}>
-        {/* Camera Viewfinder Box matching wireframe Page 3 */}
         <View style={styles.viewfinder}>
-          {/* Flashlight toggle button in circle at top right */}
           <TouchableOpacity
             style={[styles.flashButton, flashOn && styles.flashButtonActive]}
-            onPress={handleToggleFlash}
+            onPress={toggleFlash}
             activeOpacity={0.7}
           >
             <Text style={styles.flashText}>{flashOn ? '⚡' : 'F'}</Text>
           </TouchableOpacity>
 
-          {/* Center Dashed Scanning Frame */}
           <View style={styles.scanningFrame}>
             <Text style={styles.scanningFrameText}>Scanning frame</Text>
           </View>
 
-          {/* Subtitle inside camera viewfinder */}
           <Text style={styles.viewfinderSubtext}>Camera viewfinder</Text>
         </View>
 
-        {/* Instructions text */}
         <Text style={styles.instructionText}>
           Point the camera at the barcode
         </Text>
 
-        {/* Detected Product Card matching wireframe */}
         <View style={styles.detectedCard}>
           <Text style={styles.detectedProductText}>
             Product: {detectedProduct}
           </Text>
 
-          {/* Button to confirm using the detected item */}
           <SimpleButton
             title="Use This Item"
             variant="primary"
-            onPress={handleUseScannedItem}
+            onPress={useScannedItem}
             style={styles.useItemButton}
           />
         </View>
 
-        {/* Enter manually link at the bottom */}
         <TouchableOpacity
           style={styles.manualLinkContainer}
-          onPress={handleEnterManually}
+          onPress={enterManually}
         >
           <Text style={styles.manualLinkText}>Enter manually</Text>
         </TouchableOpacity>
@@ -109,7 +89,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  // Large viewfinder rectangle matching wireframe
   viewfinder: {
     width: '100%',
     height: 340,
@@ -121,7 +100,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     padding: 16,
   },
-  // Flash toggle button in circle
   flashButton: {
     position: 'absolute',
     top: 14,
@@ -143,7 +121,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#111111',
   },
-  // Dashed inner scanning frame
   scanningFrame: {
     width: '78%',
     height: 140,
@@ -171,7 +148,6 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     textAlign: 'center',
   },
-  // Detected product card with thick border
   detectedCard: {
     width: '100%',
     borderWidth: 1.5,

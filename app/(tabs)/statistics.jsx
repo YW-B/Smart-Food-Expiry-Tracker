@@ -1,8 +1,3 @@
-// app/(tabs)/statistics.jsx
-// Waste Statistics Screen (Screen 9 in the PDF Wireframe)
-// Displays food consumption vs waste metrics, period selector (Week/Month/Year),
-// and beginner-friendly custom UI charts using pure React Native Views.
-
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -15,34 +10,23 @@ import ScreenHeader from '@/components/ScreenHeader';
 import NumberCard from '@/components/NumberCard';
 import { sampleStats } from '@/data/sampleData';
 
+const periods = ['Week', 'Month', 'Year'];
+
 export default function StatisticsScreen() {
-  // Period filter state: 'Week' | 'Month' | 'Year'
+  // This value stores the time period selected at the top of the screen.
   const [selectedPeriod, setSelectedPeriod] = useState('Week');
-
-  // Statistics data (will be computed from SQLite aggregate queries in the future:
-  // SELECT status, COUNT(*) FROM Item GROUP BY status;)
   const stats = sampleStats;
-
-  // Chart data for weekly items (bar heights scaled for beginner-friendly pure CSS rendering)
-  const weeklyBars = [
-    { label: 'W1', height: 70, value: 5 },
-    { label: 'W2', height: 110, value: 8 },
-    { label: 'W3', height: 50, value: 4 },
-    { label: 'W4', height: 95, value: 7 },
-  ];
 
   return (
     <View style={styles.container}>
-      {/* Screen Header */}
       <ScreenHeader title="Waste Statistics" />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Period Selector Tabs: [ Week ] [ Month ] [ Year ] */}
         <View style={styles.periodTabsRow}>
-          {['Week', 'Month', 'Year'].map((period) => (
+          {periods.map((period) => (
             <TouchableOpacity
               key={period}
               style={[
@@ -64,7 +48,6 @@ export default function StatisticsScreen() {
           ))}
         </View>
 
-        {/* Overview Stat Cards: Consumed vs Discarded */}
         <View style={styles.statsRow}>
           <NumberCard
             label="Consumed:"
@@ -78,47 +61,39 @@ export default function StatisticsScreen() {
           />
         </View>
 
-        {/* Chart 1 Card: Items per week (Bar Chart) */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Items per week</Text>
 
           <View style={styles.barChartContainer}>
-            {/* The 4 vertical bars */}
             <View style={styles.barsArea}>
-              {weeklyBars.map((bar) => (
+              {stats.weeklyData.map((bar) => (
                 <View key={bar.label} style={styles.barColumn}>
-                  <View style={[styles.barVisual, { height: bar.height }]} />
+                  <View style={[styles.barVisual, { height: bar.value * 14 }]} />
                   <Text style={styles.barLabel}>{bar.label}</Text>
                 </View>
               ))}
             </View>
 
-            {/* Horizontal baseline line matching wireframe */}
             <View style={styles.chartBaseline} />
           </View>
         </View>
 
-        {/* Chart 2 Card: Consumed vs Discarded (Circular/Donut visualization) */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Consumed vs Discarded</Text>
 
           <View style={styles.pieRow}>
-            {/* Circular Donut Diagram */}
             <View style={styles.circleDiagram}>
               <View style={styles.circleInner}>
                 <Text style={styles.circleRatioText}>75 / 25</Text>
               </View>
             </View>
 
-            {/* Legend on the right */}
             <View style={styles.legendContainer}>
-              {/* Consumed Legend */}
               <View style={styles.legendItem}>
                 <View style={styles.legendBoxConsumed} />
                 <Text style={styles.legendLabel}>Consumed</Text>
               </View>
 
-              {/* Discarded Legend */}
               <View style={styles.legendItem}>
                 <View style={styles.legendBoxDiscarded} />
                 <Text style={styles.legendLabel}>Discarded</Text>
@@ -127,7 +102,6 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        {/* Waste Rate Metric Text matching wireframe bottom */}
         <View style={styles.wasteRateContainer}>
           <Text style={styles.wasteRateText}>
             Waste rate: {stats.wasteRate}
@@ -147,7 +121,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  // Top period tabs row [Week] [Month] [Year]
   periodTabsRow: {
     flexDirection: 'row',
     borderWidth: 1.5,
@@ -177,7 +150,6 @@ const styles = StyleSheet.create({
     color: '#111111',
     fontWeight: 'bold',
   },
-  // Overview stats row
   statsRow: {
     flexDirection: 'row',
     marginBottom: 16,
@@ -185,7 +157,6 @@ const styles = StyleSheet.create({
   statCard: {
     marginHorizontal: 4,
   },
-  // Chart container card matching wireframe
   chartCard: {
     borderWidth: 1.5,
     borderColor: '#333333',
@@ -200,7 +171,6 @@ const styles = StyleSheet.create({
     color: '#111111',
     marginBottom: 16,
   },
-  // Bar chart layout
   barChartContainer: {
     alignItems: 'center',
     paddingTop: 10,
@@ -235,7 +205,6 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#333333',
   },
-  // Donut diagram layout
   pieRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,7 +265,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#222222',
   },
-  // Waste rate bottom text
   wasteRateContainer: {
     marginTop: 4,
     paddingHorizontal: 4,

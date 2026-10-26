@@ -1,11 +1,6 @@
-// app/add-item.jsx
-// Add Item Screen (Screen 2 in the PDF Wireframe)
-// Form to register a new food item with name, barcode scan shortcut, category, quantity, unit, and expiry date.
-
 import React, { useState } from 'react';
 import {
   Alert,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,37 +11,26 @@ import { router, useLocalSearchParams } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleInput from '@/components/SimpleInput';
 import SimpleButton from '@/components/SimpleButton';
+import SimplePickerModal from '@/components/SimplePickerModal';
 import { sampleCategories } from '@/data/sampleData';
 
+const units = ['pcs', 'L', 'kg', 'g', 'pack', 'loaf', 'can'];
+const categoryNames = sampleCategories.map((category) => category.name);
+
 export default function AddItemScreen() {
-  // If the user scanned a barcode from the scanner screen, we can receive the product name via route params
   const params = useLocalSearchParams();
 
-  // Form State:
-  // 1. name: Text name of the food item
+  // Each state variable stores one value typed or selected in the form.
   const [name, setName] = useState(params.scannedName ? String(params.scannedName) : '');
-
-  // 2. category: Selected food category name
   const [category, setCategory] = useState('');
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
-
-  // 3. quantity: Amount of food items
   const [quantity, setQuantity] = useState('1');
-
-  // 4. unit: Unit of measurement (L, pcs, kg, g, loaf, pack)
   const [unit, setUnit] = useState('');
   const [showUnitPicker, setShowUnitPicker] = useState(false);
-
-  // 5. expiryDate: Target expiry date string (DD / MM / YYYY)
   const [expiryDate, setExpiryDate] = useState('');
 
-  // Available units list for easy selection
-  const unitsList = ['pcs', 'L', 'kg', 'g', 'pack', 'loaf', 'can'];
-
-  // Form validation function:
-  // Beginners can see how simple if statements guard against missing user input
-  function handleSaveItem() {
-    if (!name.trim()) {
+  function saveItem() {
+    if (name.trim() === '') {
       Alert.alert('Missing Field', 'Please enter an item name.');
       return;
     }
@@ -54,7 +38,7 @@ export default function AddItemScreen() {
       Alert.alert('Missing Field', 'Please select a food category.');
       return;
     }
-    if (!quantity || isNaN(Number(quantity)) || Number(quantity) <= 0) {
+    if (quantity === '' || isNaN(Number(quantity)) || Number(quantity) <= 0) {
       Alert.alert('Invalid Field', 'Please enter a valid quantity greater than 0.');
       return;
     }
@@ -62,14 +46,11 @@ export default function AddItemScreen() {
       Alert.alert('Missing Field', 'Please select a unit of measurement.');
       return;
     }
-    if (!expiryDate.trim()) {
+    if (expiryDate.trim() === '') {
       Alert.alert('Missing Field', 'Please enter an expiry date (e.g. DD / MM / YYYY).');
       return;
     }
 
-    // In the future SQLite database phase, we will execute:
-    // INSERT INTO Item (name, categoryId, quantity, unit, expiryDate, status)
-    // VALUES (name, selectedCatId, quantity, unit, expiryDate, 'Active');
     Alert.alert(
       'Item Saved',
       `"${name}" has been added to your inventory! (Local state demo)`,
@@ -82,8 +63,7 @@ export default function AddItemScreen() {
     );
   }
 
-  // Quick helper to fill in a sample expiry date (7 days from now)
-  function handleQuickCalendar() {
+  function fillDateOneWeekFromNow() {
     const today = new Date();
     today.setDate(today.getDate() + 7);
     const day = String(today.getDate()).padStart(2, '0');
@@ -92,9 +72,18 @@ export default function AddItemScreen() {
     setExpiryDate(`${day} / ${month} / ${year}`);
   }
 
+  function chooseCategory(selectedCategory) {
+    setCategory(selectedCategory);
+    setShowCategoryPicker(false);
+  }
+
+  function chooseUnit(selectedUnit) {
+    setUnit(selectedUnit);
+    setShowUnitPicker(false);
+  }
+
   return (
     <View style={styles.container}>
-      {/* Header with back button */}
       <ScreenHeader title="Add Item" showBack={true} />
 
       <ScrollView
@@ -102,20 +91,18 @@ export default function AddItemScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Item Name Input with [cam] Scan Barcode button beside it */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Item Name</Text>
           <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: 8 }}>
+            <View style={styles.inputBesideButton}>
               <SimpleInput
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter item name"
-                style={{ marginVertical: 0 }}
+                style={styles.inputWithoutMargin}
               />
             </View>
 
-            {/* [cam] Scan Barcode Button matching wireframe Page 2 */}
             <TouchableOpacity
               style={styles.scanButton}
               onPress={() => router.push('/scanner')}
@@ -127,7 +114,6 @@ export default function AddItemScreen() {
           </View>
         </View>
 
-        {/* Category Dropdown Picker */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Category</Text>
           <TouchableOpacity
@@ -142,22 +128,19 @@ export default function AddItemScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Quantity and Unit Row (Side by side) */}
         <View style={styles.row}>
-          {/* Quantity Input */}
-          <View style={{ flex: 1, marginRight: 8 }}>
+          <View style={styles.inputBesideButton}>
             <Text style={styles.label}>Quantity</Text>
             <SimpleInput
               value={quantity}
               onChangeText={setQuantity}
               placeholder="0"
               keyboardType="numeric"
-              style={{ marginVertical: 0 }}
+              style={styles.inputWithoutMargin}
             />
           </View>
 
-          {/* Unit Dropdown */}
-          <View style={{ flex: 1 }}>
+          <View style={styles.halfWidth}>
             <Text style={styles.label}>Unit</Text>
             <TouchableOpacity
               style={styles.pickerBox}
@@ -172,23 +155,21 @@ export default function AddItemScreen() {
           </View>
         </View>
 
-        {/* Expiry Date Input with [cal] button */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Expiry Date</Text>
           <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: 8 }}>
+            <View style={styles.inputBesideButton}>
               <SimpleInput
                 value={expiryDate}
                 onChangeText={setExpiryDate}
                 placeholder="DD / MM / YYYY"
-                style={{ marginVertical: 0 }}
+                style={styles.inputWithoutMargin}
               />
             </View>
 
-            {/* [cal] Calendar picker helper button */}
             <TouchableOpacity
               style={styles.calButton}
-              onPress={handleQuickCalendar}
+              onPress={fillDateOneWeekFromNow}
               activeOpacity={0.7}
             >
               <Text style={styles.calButtonText}>cal</Text>
@@ -196,17 +177,14 @@ export default function AddItemScreen() {
           </View>
         </View>
 
-        {/* Spacer before action buttons */}
-        <View style={{ height: 40 }} />
+        <View style={styles.buttonSpacer} />
 
-        {/* Save Item Button (Primary filled gray) */}
         <SimpleButton
           title="Save Item"
           variant="primary"
-          onPress={handleSaveItem}
+          onPress={saveItem}
         />
 
-        {/* Cancel Button (Secondary outlined) */}
         <SimpleButton
           title="Cancel"
           variant="secondary"
@@ -214,65 +192,21 @@ export default function AddItemScreen() {
         />
       </ScrollView>
 
-      {/* Category Picker Modal */}
-      <Modal
+      <SimplePickerModal
         visible={showCategoryPicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowCategoryPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowCategoryPicker(false)}
-        >
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Choose Category</Text>
-            {sampleCategories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={styles.modalOption}
-                onPress={() => {
-                  setCategory(cat.name);
-                  setShowCategoryPicker(false);
-                }}
-              >
-                <Text style={styles.modalOptionText}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        title="Choose Category"
+        options={categoryNames}
+        onSelect={chooseCategory}
+        onClose={() => setShowCategoryPicker(false)}
+      />
 
-      {/* Unit Picker Modal */}
-      <Modal
+      <SimplePickerModal
         visible={showUnitPicker}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowUnitPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowUnitPicker(false)}
-        >
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Choose Unit</Text>
-            {unitsList.map((u) => (
-              <TouchableOpacity
-                key={u}
-                style={styles.modalOption}
-                onPress={() => {
-                  setUnit(u);
-                  setShowUnitPicker(false);
-                }}
-              >
-                <Text style={styles.modalOptionText}>{u}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        title="Choose Unit"
+        options={units}
+        onSelect={chooseUnit}
+        onClose={() => setShowUnitPicker(false)}
+      />
     </View>
   );
 }
@@ -300,7 +234,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  // Scan barcode button beside Item Name input
+  inputBesideButton: {
+    flex: 1,
+    marginRight: 8,
+  },
+  halfWidth: {
+    flex: 1,
+  },
+  inputWithoutMargin: {
+    marginVertical: 0,
+  },
   scanButton: {
     borderWidth: 1.5,
     borderColor: '#333333',
@@ -317,7 +260,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#111111',
   },
-  // Dropdown style box for Category and Unit
   pickerBox: {
     height: 48,
     borderWidth: 1.5,
@@ -343,7 +285,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333333',
   },
-  // [cal] Calendar button
   calButton: {
     borderWidth: 1.5,
     borderColor: '#333333',
@@ -359,38 +300,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111111',
   },
-  // Modal selection styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 320,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    padding: 16,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#111111',
-    textAlign: 'center',
-  },
-  modalOption: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeeee',
-  },
-  modalOptionText: {
-    fontSize: 15,
-    color: '#222222',
-    textAlign: 'center',
+  buttonSpacer: {
+    height: 40,
   },
 });

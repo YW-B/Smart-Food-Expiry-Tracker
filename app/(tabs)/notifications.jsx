@@ -1,7 +1,3 @@
-// app/(tabs)/notifications.jsx
-// Notifications Screen (Screen 8 in the PDF Wireframe)
-// Displays expiry alert notifications grouped by "Today" and "Earlier", with an Alerts toggle and "Mark all as read".
-
 import React, { useState } from 'react';
 import {
   Alert,
@@ -15,44 +11,34 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { sampleNotifications } from '@/data/sampleData';
 
 export default function NotificationsScreen() {
-  // Store notification list in local state so the user can mark notifications as read
-  // In the future phase, notifications will be queried from the database:
-  // SELECT * FROM Notification ORDER BY notifyDate DESC;
+  // The list is state because pressing "Mark all as read" changes each item.
   const [notifications, setNotifications] = useState(sampleNotifications);
-
-  // Toggle state for whether system notifications are active
   const [alertsEnabled, setAlertsEnabled] = useState(true);
 
-  // Filter notifications into sections: "Today" and "Earlier"
-  const todayNotifications = notifications.filter((n) => n.section === 'Today');
-  const earlierNotifications = notifications.filter((n) => n.section === 'Earlier');
-
-  // Toggle the alert status badge in header
-  function handleToggleAlerts() {
+  function toggleAlerts() {
     setAlertsEnabled(!alertsEnabled);
   }
 
-  // Mark all notifications as read
-  function handleMarkAllAsRead() {
-    setNotifications((prev) =>
-      prev.map((item) => ({ ...item, isRead: true }))
+  function markAllAsRead() {
+    setNotifications((currentNotifications) =>
+      currentNotifications.map((item) => ({ ...item, isRead: true }))
     );
     Alert.alert('Notifications', 'All notifications marked as read.');
   }
 
-  // Tapping a notification
-  function handleNotificationPress(notification) {
+  function showNotification(notification) {
     Alert.alert('Expiry Alert', notification.title);
   }
 
-  // Header right button: [Alerts On] or [Alerts Off]
+  const sections = ['Today', 'Earlier'];
+
   const alertsBadge = (
     <TouchableOpacity
       style={[
         styles.alertsBadge,
         !alertsEnabled && styles.alertsBadgeDisabled,
       ]}
-      onPress={handleToggleAlerts}
+      onPress={toggleAlerts}
       activeOpacity={0.7}
     >
       <Text style={styles.alertsBadgeText}>
@@ -63,7 +49,6 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Screen Header with Alerts badge in top right matching wireframe */}
       <ScreenHeader
         title="Notifications"
         showBack={false}
@@ -74,65 +59,38 @@ export default function NotificationsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* "Mark all as read" link on right side */}
         <View style={styles.markReadRow}>
-          <TouchableOpacity onPress={handleMarkAllAsRead} activeOpacity={0.7}>
+          <TouchableOpacity onPress={markAllAsRead} activeOpacity={0.7}>
             <Text style={styles.markReadText}>Mark all as read</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Section 1: Today */}
-        <Text style={styles.sectionHeader}>Today</Text>
-        {todayNotifications.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.notificationCard,
-              item.isRead && styles.readNotificationCard,
-            ]}
-            onPress={() => handleNotificationPress(item)}
-            activeOpacity={0.7}
-          >
-            {/* Alert Icon (circle with exclamation mark !) */}
-            <View style={styles.alertIconCircle}>
-              <Text style={styles.alertIconText}>!</Text>
-            </View>
+        {sections.map((sectionName, sectionIndex) => (
+          <View key={sectionName} style={sectionIndex > 0 ? styles.laterSection : null}>
+            <Text style={styles.sectionHeader}>{sectionName}</Text>
 
-            {/* Notification Title */}
-            <Text style={styles.notificationTitle} numberOfLines={1}>
-              {item.title}
-            </Text>
-
-            {/* Timestamp */}
-            <Text style={styles.notificationTime}>{item.time}</Text>
-          </TouchableOpacity>
-        ))}
-
-        {/* Section 2: Earlier */}
-        <Text style={[styles.sectionHeader, { marginTop: 24 }]}>Earlier</Text>
-        {earlierNotifications.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.notificationCard,
-              item.isRead && styles.readNotificationCard,
-            ]}
-            onPress={() => handleNotificationPress(item)}
-            activeOpacity={0.7}
-          >
-            {/* Alert Icon */}
-            <View style={styles.alertIconCircle}>
-              <Text style={styles.alertIconText}>!</Text>
-            </View>
-
-            {/* Notification Title */}
-            <Text style={styles.notificationTitle} numberOfLines={1}>
-              {item.title}
-            </Text>
-
-            {/* Timestamp */}
-            <Text style={styles.notificationTime}>{item.time}</Text>
-          </TouchableOpacity>
+            {notifications
+              .filter((item) => item.section === sectionName)
+              .map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.notificationCard,
+                    item.isRead && styles.readNotificationCard,
+                  ]}
+                  onPress={() => showNotification(item)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.alertIconCircle}>
+                    <Text style={styles.alertIconText}>!</Text>
+                  </View>
+                  <Text style={styles.notificationTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.notificationTime}>{item.time}</Text>
+                </TouchableOpacity>
+              ))}
+          </View>
         ))}
       </ScrollView>
     </View>
@@ -148,7 +106,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  // Top right header badge [Alerts On]
   alertsBadge: {
     borderWidth: 1.5,
     borderColor: '#333333',
@@ -165,7 +122,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111111',
   },
-  // Mark all as read button
   markReadRow: {
     alignItems: 'flex-end',
     marginBottom: 12,
@@ -181,7 +137,9 @@ const styles = StyleSheet.create({
     color: '#111111',
     marginBottom: 10,
   },
-  // Notification row card matching wireframe Page 8
+  laterSection: {
+    marginTop: 24,
+  },
   notificationCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,7 +155,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderColor: '#666666',
   },
-  // Circle with ! icon
   alertIconCircle: {
     width: 28,
     height: 28,

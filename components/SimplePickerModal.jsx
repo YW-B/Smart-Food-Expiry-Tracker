@@ -1,0 +1,71 @@
+import React from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// This component receives a list of words and tells the parent which one was pressed.
+export default function SimplePickerModal({ visible, title, options, onSelect, onClose }) {
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <TouchableOpacity style={styles.background} onPress={onClose} />
+
+        <View style={styles.card}>
+          <Text style={styles.title}>{title}</Text>
+
+          {options.map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={styles.option}
+              onPress={() => onSelect(option)}
+            >
+              <Text style={styles.optionText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  background: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 320,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#333333',
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#111111',
+    textAlign: 'center',
+  },
+  option: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eeeeee',
+  },
+  optionText: {
+    fontSize: 15,
+    color: '#222222',
+    textAlign: 'center',
+  },
+});
