@@ -1,7 +1,3 @@
-// app/(tabs)/inventory.jsx
-// Inventory Screen (Screen 4 in the PDF Wireframe)
-// Displays the full food inventory with search, filtering by expiry status, sorting, and item selection.
-
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -16,45 +12,36 @@ import ScreenHeader from '@/components/ScreenHeader';
 import FoodItemCard from '@/components/FoodItemCard';
 import { sampleItems } from '@/data/sampleData';
 
+const filterOptions = [
+  { label: 'All', value: 'all' },
+  { label: 'Expiring Soon', value: 'soon' },
+  { label: 'Expired', value: 'expired' },
+];
+
 export default function InventoryScreen() {
-  // Local state for user search text input
+  // These values store the search, filter, and sort chosen by the user.
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Local state for currently active filter tab: 'all' | 'soon' | 'expired'
   const [activeFilter, setActiveFilter] = useState('all');
-
-  // Local state for sorting mode: 'expiry' | 'name' | 'category'
   const [sortBy, setSortBy] = useState('expiry');
 
-  // In the future, this list will come from SQLite:
-  // SELECT * FROM Item WHERE ... ORDER BY ...
-  const [items] = useState(sampleItems);
-
-  // 1. FILTERING LOGIC
-  // We filter the items based on:
-  // a) The selected filter tab ('All', 'Expiring Soon', 'Expired')
-  // b) The text typed in the search bar (matches name or category)
-  const filteredItems = items.filter((item) => {
-    // Check search term
+  const filteredItems = sampleItems.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
+    if (!matchesSearch) {
+      return false;
+    }
 
-    // Check filter tab
     if (activeFilter === 'soon') {
       return item.daysLeft >= 0 && item.daysLeft <= 7;
     }
     if (activeFilter === 'expired') {
       return item.daysLeft < 0 || item.status === 'Discarded';
     }
-    // 'all' includes every item
     return true;
   });
 
-  // 2. SORTING LOGIC
-  // Simple sorting implementation for educational clarity
   const sortedItems = [...filteredItems].sort((a, b) => {
     if (sortBy === 'expiry') {
       return a.daysLeft - b.daysLeft;
@@ -68,30 +55,43 @@ export default function InventoryScreen() {
     return 0;
   });
 
-  // Toggle or switch between simple sort options
-  function handleCycleSort() {
-    if (sortBy === 'expiry') setSortBy('name');
-    else if (sortBy === 'name') setSortBy('category');
-    else setSortBy('expiry');
+  function changeSort() {
+    if (sortBy === 'expiry') {
+      setSortBy('name');
+      return;
+    }
+    if (sortBy === 'name') {
+      setSortBy('category');
+      return;
+    }
+    setSortBy('expiry');
   }
 
-  // Label for sort button based on state
   function getSortLabel() {
-    if (sortBy === 'name') return 'Sort by: Name v';
-    if (sortBy === 'category') return 'Sort by: Category v';
+    if (sortBy === 'name') {
+      return 'Sort by: Name v';
+    }
+    if (sortBy === 'category') {
+      return 'Sort by: Category v';
+    }
     return 'Sort by: Expiry Date v';
+  }
+
+  function openItem(itemId) {
+    router.push({
+      pathname: '/item-details',
+      params: { id: String(itemId) },
+    });
   }
 
   return (
     <View style={styles.container}>
-      {/* Screen Header */}
       <ScreenHeader title="Inventory" />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Search Bar - Rounded pill matching wireframe Page 4 */}
         <View style={styles.searchBarContainer}>
           <Text style={styles.searchIcon}>🔍</Text>
           <TextInput
@@ -104,74 +104,35 @@ export default function InventoryScreen() {
           />
         </View>
 
-        {/* Filter Pills Row: [All] [Expiring Soon] [Expired] */}
         <View style={styles.filterRow}>
-          <TouchableOpacity
-            style={[
-              styles.filterPill,
-              activeFilter === 'all' && styles.filterPillActive,
-            ]}
-            onPress={() => setActiveFilter('all')}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeFilter === 'all' && styles.filterTextActive,
-              ]}
-            >
-              All
-            </Text>
-          </TouchableOpacity>
+          {filterOptions.map((option) => {
+            const isActive = activeFilter === option.value;
 
-          <TouchableOpacity
-            style={[
-              styles.filterPill,
-              activeFilter === 'soon' && styles.filterPillActive,
-            ]}
-            onPress={() => setActiveFilter('soon')}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeFilter === 'soon' && styles.filterTextActive,
-              ]}
-            >
-              Expiring Soon
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.filterPill,
-              activeFilter === 'expired' && styles.filterPillActive,
-            ]}
-            onPress={() => setActiveFilter('expired')}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeFilter === 'expired' && styles.filterTextActive,
-              ]}
-            >
-              Expired
-            </Text>
-          </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.filterPill, isActive && styles.filterPillActive]}
+                onPress={() => setActiveFilter(option.value)}
+              >
+                <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* Sort By Dropdown Button */}
         <View style={styles.sortRow}>
           <TouchableOpacity
             style={styles.sortButton}
-            onPress={handleCycleSort}
+            onPress={changeSort}
             activeOpacity={0.7}
           >
             <Text style={styles.sortText}>{getSortLabel()}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Inventory Item Cards */}
         {sortedItems.map((item) => {
-          // Badge shows remaining days (e.g. "2d", "10d") or "exp"
           const badgeText = item.daysLeft < 0 ? 'exp' : `${item.daysLeft}d`;
 
           return (
@@ -180,12 +141,7 @@ export default function InventoryScreen() {
               item={item}
               subtitle={`${item.category} - ${item.expiryDate}`}
               badge={badgeText}
-              onPress={() => {
-                router.push({
-                  pathname: '/item-details',
-                  params: { id: item.id.toString() },
-                });
-              }}
+              onPress={() => openItem(item.id)}
             />
           );
         })}
@@ -197,7 +153,6 @@ export default function InventoryScreen() {
         )}
       </ScrollView>
 
-      {/* Floating Action Button (+) bottom right */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => router.push('/add-item')}
@@ -219,7 +174,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 90,
   },
-  // Search bar styled as a long pill with border
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -240,7 +194,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#111111',
   },
-  // Filter buttons row
   filterRow: {
     flexDirection: 'row',
     marginBottom: 14,
@@ -265,7 +218,6 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: '#ffffff',
   },
-  // Sort button container
   sortRow: {
     alignItems: 'flex-end',
     marginBottom: 14,
@@ -291,7 +243,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#777777',
   },
-  // Floating Action Button
   fab: {
     position: 'absolute',
     right: 20,

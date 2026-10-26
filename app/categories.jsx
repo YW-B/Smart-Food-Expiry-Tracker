@@ -1,7 +1,3 @@
-// app/categories.jsx
-// Categories Screen (Screen 5 in the PDF Wireframe)
-// Displays category list with item counts, [edit] and [del] actions, and "+ Add Category" button.
-
 import React, { useState } from 'react';
 import {
   Alert,
@@ -18,21 +14,13 @@ import SimpleButton from '@/components/SimpleButton';
 import { sampleCategories } from '@/data/sampleData';
 
 export default function CategoriesScreen() {
-  // Store the list of categories in state so the user can add, edit, or delete items.
-  // In the future SQLite phase:
-  // SELECT * FROM Category;
+  // This state stores the category list shown on the screen.
   const [categories, setCategories] = useState(sampleCategories);
-
-  // Modal state for adding a new category
   const [modalVisible, setModalVisible] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
-
-  // Editing state
   const [editingCategory, setEditingCategory] = useState(null);
 
-  // Delete a category from local state
-  // Demonstrates how array .filter() is used to remove an item by ID
-  function handleDeleteCategory(id, name) {
+  function deleteCategory(id, name) {
     Alert.alert(
       'Delete Category',
       `Are you sure you want to delete "${name}"?`,
@@ -42,52 +30,53 @@ export default function CategoriesScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            // Remove category from state
-            // SQLite future implementation: DELETE FROM Category WHERE id = ?
-            setCategories((prev) => prev.filter((cat) => cat.id !== id));
+            setCategories((currentCategories) => {
+              return currentCategories.filter((category) => category.id !== id);
+            });
           },
         },
       ]
     );
   }
 
-  // Open modal to edit category name
-  function handleEditCategory(category) {
+  function openEditCategory(category) {
     setEditingCategory(category);
     setNewCategoryName(category.name);
     setModalVisible(true);
   }
 
-  // Save new or edited category
-  function handleSaveCategory() {
-    if (!newCategoryName.trim()) {
+  function openNewCategory() {
+    setEditingCategory(null);
+    setNewCategoryName('');
+    setModalVisible(true);
+  }
+
+  function saveCategory() {
+    const cleanName = newCategoryName.trim();
+
+    if (cleanName === '') {
       Alert.alert('Validation Error', 'Please enter a category name.');
       return;
     }
 
     if (editingCategory) {
-      // Update existing category
-      // SQLite future implementation: UPDATE Category SET name = ? WHERE id = ?
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === editingCategory.id
-            ? { ...cat, name: newCategoryName.trim() }
-            : cat
+      setCategories((currentCategories) =>
+        currentCategories.map((category) =>
+          category.id === editingCategory.id
+            ? { ...category, name: cleanName }
+            : category
         )
       );
     } else {
-      // Add new category
-      // SQLite future implementation: INSERT INTO Category (name) VALUES (?)
-      const newId = categories.length > 0 ? Math.max(...categories.map((c) => c.id)) + 1 : 1;
-      const newCat = {
-        id: newId,
-        name: newCategoryName.trim(),
+      const lastCategory = categories[categories.length - 1];
+      const newCategory = {
+        id: lastCategory ? lastCategory.id + 1 : 1,
+        name: cleanName,
         count: 0,
       };
-      setCategories((prev) => [...prev, newCat]);
+      setCategories((currentCategories) => [...currentCategories, newCategory]);
     }
 
-    // Reset modal state
     setNewCategoryName('');
     setEditingCategory(null);
     setModalVisible(false);
@@ -95,30 +84,26 @@ export default function CategoriesScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Screen Header with back arrow */}
       <ScreenHeader title="Categories" showBack={true} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* List of category cards matching wireframe Page 5 */}
         {categories.map((category) => (
           <View key={category.id} style={styles.categoryCard}>
-            {/* Category Name and item count */}
             <Text style={styles.categoryTitle}>
               {category.name} - {category.count} items
             </Text>
 
-            {/* Small Action buttons: [edit] and [del] */}
             <View style={styles.actionsRow}>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => handleEditCategory(category)}
+                onPress={() => openEditCategory(category)}
               >
                 <Text style={styles.actionButtonText}>edit</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => handleDeleteCategory(category.id, category.name)}
+                onPress={() => deleteCategory(category.id, category.name)}
               >
                 <Text style={styles.actionButtonText}>del</Text>
               </TouchableOpacity>
@@ -127,20 +112,14 @@ export default function CategoriesScreen() {
         ))}
       </ScrollView>
 
-      {/* Bottom Button: + Add Category */}
       <View style={styles.bottomBar}>
         <SimpleButton
           title="+ Add Category"
           variant="primary"
-          onPress={() => {
-            setEditingCategory(null);
-            setNewCategoryName('');
-            setModalVisible(true);
-          }}
+          onPress={openNewCategory}
         />
       </View>
 
-      {/* Simple Modal Dialog for Adding / Editing Category */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -171,7 +150,7 @@ export default function CategoriesScreen() {
 
               <TouchableOpacity
                 style={[styles.modalBtn, styles.modalSaveBtn]}
-                onPress={handleSaveCategory}
+                onPress={saveCategory}
               >
                 <Text style={styles.modalBtnText}>Save</Text>
               </TouchableOpacity>
@@ -234,7 +213,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#e0e0e0',
     backgroundColor: '#ffffff',
   },
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
