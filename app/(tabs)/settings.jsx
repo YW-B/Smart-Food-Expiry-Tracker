@@ -11,6 +11,7 @@ import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
 import SimplePickerModal from '@/components/SimplePickerModal';
+import { colors, cardShadow } from '@/constants/theme';
 
 const reminderOptions = [
   '1 day before',
@@ -120,7 +121,7 @@ export default function SettingsScreen() {
         <SimpleButton
           title={
             calendarConnected
-              ? 'Google Calendar Connected ✓'
+              ? 'Google Calendar Connected'
               : 'Connect Google Calendar'
           }
           variant="primary"
@@ -199,17 +200,18 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 6,
     paddingBottom: 40,
   },
   sectionHeading: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111111',
-    marginBottom: 8,
+    fontSize: 19,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 10,
   },
   laterSection: {
     marginTop: 24,
@@ -218,55 +220,58 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    minHeight: 58,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
     paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: '#ffffff',
-    marginVertical: 5,
+    paddingHorizontal: 16,
+    backgroundColor: colors.surface,
+    marginVertical: 6,
+    ...cardShadow,
   },
   settingLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#111111',
+    color: colors.text,
     flex: 1,
   },
   toggleButton: {
     width: 60,
     height: 32,
     borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   toggleOn: {
-    backgroundColor: '#b5b5b5',
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
   },
   toggleOff: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   toggleText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   dropdownArrow: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333333',
+    color: colors.primary,
     marginLeft: 8,
   },
   arrowText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: colors.primary,
     marginLeft: 8,
   },
   lastSyncedText: {
     fontSize: 12,
-    color: '#666666',
+    color: colors.mutedText,
     marginTop: 6,
     marginBottom: 10,
     paddingHorizontal: 4,

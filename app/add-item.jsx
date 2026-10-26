@@ -13,6 +13,7 @@ import SimpleInput from '@/components/SimpleInput';
 import SimpleButton from '@/components/SimpleButton';
 import SimplePickerModal from '@/components/SimplePickerModal';
 import { sampleCategories } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
 
 const units = ['pcs', 'L', 'kg', 'g', 'pack', 'loaf', 'can'];
 const categoryNames = sampleCategories.map((category) => category.name);
@@ -214,10 +215,11 @@ export default function AddItemScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 8,
     paddingBottom: 40,
   },
   fieldGroup: {
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
+    color: colors.text,
     marginBottom: 6,
   },
   row: {
@@ -245,60 +247,61 @@ const styles = StyleSheet.create({
     marginVertical: 0,
   },
   scanButton: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 8,
-    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 14,
+    paddingVertical: 7,
     paddingHorizontal: 12,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 48,
+    height: 54,
   },
   scanButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   pickerBox: {
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    height: 54,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   pickerPlaceholderText: {
     fontSize: 15,
-    color: '#888888',
+    color: colors.mutedText,
   },
   pickerValueText: {
     fontSize: 15,
-    color: '#111111',
+    color: colors.text,
     fontWeight: '500',
   },
   dropdownArrow: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333333',
+    color: colors.primary,
   },
   calButton: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
-    width: 48,
-    height: 48,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 14,
+    width: 54,
+    height: 54,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: colors.primarySoft,
+    ...cardShadow,
   },
   calButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   buttonSpacer: {
     height: 40,

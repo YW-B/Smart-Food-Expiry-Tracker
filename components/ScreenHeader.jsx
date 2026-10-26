@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, cardShadow } from '@/constants/theme';
 
 /**
  * ScreenHeader
@@ -62,41 +63,44 @@ export default function ScreenHeader({
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#e6e6e6',
+    backgroundColor: colors.background,
   },
   header: {
-    height: 60,
-    backgroundColor: '#e6e6e6',
-    borderBottomWidth: 1.5,
-    borderBottomColor: '#333333',
+    height: 68,
+    backgroundColor: colors.background,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
   },
   sideSlot: {
-    width: 60,
+    width: 84,
     justifyContent: 'center',
   },
   rightSlot: {
     alignItems: 'flex-end',
   },
   backButton: {
-    paddingVertical: 6,
-    paddingRight: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    ...cardShadow,
   },
   backArrow: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   centerSlot: {
     flex: 1,
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111111',
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.text,
   },
 });

@@ -8,6 +8,7 @@ import {
 import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
+import { colors, cardShadow } from '@/constants/theme';
 
 export default function ScannerScreen() {
   // El variable da bey7faz el flash sh8al wala ma2fool.
@@ -81,24 +82,27 @@ export default function ScannerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingBottom: 18,
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   viewfinder: {
     width: '100%',
     height: 340,
-    backgroundColor: '#b0b0b0',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.primaryDark,
+    borderWidth: 0,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     padding: 16,
+    overflow: 'hidden',
+    ...cardShadow,
   },
   flashButton: {
     position: 'absolute',
@@ -107,59 +111,60 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.surface,
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   flashButtonActive: {
-    backgroundColor: '#ffe082',
+    backgroundColor: colors.accent,
   },
   flashText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   scanningFrame: {
     width: '78%',
     height: 140,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#333333',
+    borderColor: colors.surface,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   scanningFrameText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#222222',
+    color: colors.surface,
   },
   viewfinderSubtext: {
     position: 'absolute',
     bottom: 16,
     fontSize: 13,
-    color: '#222222',
+    color: colors.primarySoft,
   },
   instructionText: {
     fontSize: 14,
-    color: '#333333',
+    color: colors.mutedText,
     marginVertical: 12,
     textAlign: 'center',
   },
   detectedCard: {
     width: '100%',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 8,
-    padding: 16,
-    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 20,
+    padding: 18,
+    backgroundColor: colors.surface,
+    ...cardShadow,
   },
   detectedProductText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.text,
     marginBottom: 12,
   },
   useItemButton: {
@@ -170,7 +175,7 @@ const styles = StyleSheet.create({
   },
   manualLinkText: {
     fontSize: 14,
-    color: '#222222',
+    color: colors.primary,
     fontWeight: '500',
     textDecorationLine: 'underline',
   },

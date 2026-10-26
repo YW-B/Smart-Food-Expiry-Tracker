@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
+import { colors } from '@/constants/theme';
 
 export default function SimpleInput({
   value,
@@ -17,7 +18,7 @@ export default function SimpleInput({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#888888"
+        placeholderTextColor={colors.mutedText}
         keyboardType={keyboardType}
       />
     </View>
@@ -31,13 +32,13 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    fontSize: 15,
-    backgroundColor: '#ffffff',
-    color: '#111111',
+    height: 54,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: colors.surface,
+    color: colors.text,
   },
 });

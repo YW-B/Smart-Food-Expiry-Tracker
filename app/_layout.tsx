@@ -1,6 +1,19 @@
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { colors } from '@/constants/theme';
+
+const appTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: colors.primary,
+    background: colors.background,
+    card: colors.surface,
+    text: colors.text,
+    border: colors.border,
+  },
+};
 
 export {
   // Da bey3red error screen law 7asal error fel navigation.
@@ -9,7 +22,7 @@ export {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider value={DefaultTheme}>
+    <ThemeProvider value={appTheme}>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

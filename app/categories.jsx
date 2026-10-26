@@ -12,6 +12,7 @@ import {
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
 import { sampleCategories } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
 
 export default function CategoriesScreen() {
   // El state da bey7faz list el categories elli zahra 3ala el screen.
@@ -102,10 +103,10 @@ export default function CategoriesScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.actionButton}
+                style={[styles.actionButton, styles.deleteActionButton]}
                 onPress={() => deleteCategory(category.id, category.name)}
               >
-                <Text style={styles.actionButtonText}>del</Text>
+                <Text style={[styles.actionButtonText, styles.deleteActionText]}>del</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -152,7 +153,7 @@ export default function CategoriesScreen() {
                 style={[styles.modalBtn, styles.modalSaveBtn]}
                 onPress={saveCategory}
               >
-                <Text style={styles.modalBtnText}>Save</Text>
+                <Text style={[styles.modalBtnText, styles.modalSaveText]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -165,28 +166,30 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 8,
     paddingBottom: 24,
   },
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    backgroundColor: '#ffffff',
-    borderRadius: 4,
-    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    marginVertical: 6,
+    marginVertical: 7,
+    ...cardShadow,
   },
   categoryTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#111111',
+    color: colors.text,
     flex: 1,
   },
   actionsRow: {
@@ -194,28 +197,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 11,
     marginLeft: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.primarySoft,
   },
   actionButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.primaryDark,
+  },
+  deleteActionButton: {
+    backgroundColor: colors.dangerSoft,
+    borderColor: colors.dangerSoft,
+  },
+  deleteActionText: {
+    color: colors.danger,
   },
   bottomBar: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    backgroundColor: '#ffffff',
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(23,35,28,0.46)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -223,22 +233,23 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     maxWidth: 340,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 22,
     padding: 20,
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...cardShadow,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.text,
     marginBottom: 16,
   },
   modalInput: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
     paddingHorizontal: 12,
     height: 44,
     fontSize: 15,
@@ -251,20 +262,24 @@ const styles = StyleSheet.create({
   modalBtn: {
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
     marginLeft: 10,
   },
   modalCancelBtn: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   modalSaveBtn: {
-    backgroundColor: '#b5b5b5',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   modalBtnText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.primaryDark,
+  },
+  modalSaveText: {
+    color: colors.surface,
   },
 });

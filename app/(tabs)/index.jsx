@@ -5,6 +5,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import NumberCard from '@/components/NumberCard';
 import FoodItemCard from '@/components/FoodItemCard';
 import { sampleItems } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
 
 export default function HomeScreen() {
   const expiringThisWeek = sampleItems.filter((item) => {
@@ -34,6 +35,14 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.heroCard}>
+          <Text style={styles.eyebrow}>SMART FOOD TRACKER</Text>
+          <Text style={styles.heroTitle}>Use it before you lose it.</Text>
+          <Text style={styles.heroText}>
+            A quick look at what needs your attention this week.
+          </Text>
+        </View>
+
         <View style={styles.statsRow}>
           <NumberCard label="Expiring Soon:" value={expiringSoonCount} />
           <NumberCard label="Expired:" value={expiredCount} />
@@ -74,22 +83,49 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 90,
+    paddingHorizontal: 18,
+    paddingBottom: 100,
+  },
+  heroCard: {
+    marginTop: 6,
+    marginBottom: 18,
+    padding: 20,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    ...cardShadow,
+  },
+  eyebrow: {
+    marginBottom: 8,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1.4,
+    color: colors.accent,
+  },
+  heroTitle: {
+    marginBottom: 6,
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.surface,
+  },
+  heroText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.primarySoft,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginHorizontal: -4,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111111',
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 10,
   },
   emptyContainer: {
     padding: 24,
@@ -97,30 +133,25 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#777777',
+    color: colors.mutedText,
   },
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#9e9e9e',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    bottom: 18,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primary,
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000000',
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    ...cardShadow,
   },
   fabText: {
-    fontSize: 28,
-    fontWeight: '400',
-    color: '#111111',
+    fontSize: 30,
+    fontWeight: '500',
+    color: colors.surface,
     lineHeight: 32,
   },
 });

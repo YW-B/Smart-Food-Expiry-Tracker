@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import { sampleNotifications } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
 
 export default function NotificationsScreen() {
   // El list de state 3ashan "Mark all as read" beyghayar kol notification.
@@ -100,27 +101,28 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 6,
     paddingBottom: 40,
   },
   alertsBadge: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 16,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    backgroundColor: '#ffffff',
+    paddingVertical: 6,
+    paddingHorizontal: 11,
+    backgroundColor: colors.primarySoft,
   },
   alertsBadgeDisabled: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.surface,
   },
   alertsBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   markReadRow: {
     alignItems: 'flex-end',
@@ -128,13 +130,13 @@ const styles = StyleSheet.create({
   },
   markReadText: {
     fontSize: 13,
-    color: '#333333',
-    fontWeight: '500',
+    color: colors.primary,
+    fontWeight: '700',
   },
   sectionHeader: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111111',
+    fontSize: 19,
+    fontWeight: '800',
+    color: colors.text,
     marginBottom: 10,
   },
   laterSection: {
@@ -143,43 +145,45 @@ const styles = StyleSheet.create({
   notificationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
-    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 18,
+    paddingVertical: 15,
+    paddingHorizontal: 14,
+    backgroundColor: colors.surface,
+    marginVertical: 6,
+    ...cardShadow,
   },
   readNotificationCard: {
-    backgroundColor: '#f9f9f9',
-    borderColor: '#666666',
+    backgroundColor: '#FAFBFA',
+    borderColor: colors.border,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   alertIconCircle: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.accentSoft,
   },
   alertIconText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   notificationTitle: {
     flex: 1,
     fontSize: 14,
     fontWeight: '500',
-    color: '#111111',
+    color: colors.text,
   },
   notificationTime: {
     fontSize: 12,
-    color: '#666666',
+    color: colors.mutedText,
     marginLeft: 8,
   },
 });

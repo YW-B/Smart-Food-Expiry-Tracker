@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { colors, cardShadow } from '@/constants/theme';
 
 export default function NumberCard({ label, value, style }) {
   return (
@@ -17,27 +18,28 @@ export default function NumberCard({ label, value, style }) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 80,
-    backgroundColor: '#ebebeb',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 8,
-    padding: 10,
+    minHeight: 104,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 18,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 4,
+    ...cardShadow,
   },
   label: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#333333',
+    color: colors.mutedText,
     textAlign: 'center',
     marginBottom: 6,
   },
   value: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#111111',
+    fontSize: 26,
+    fontWeight: '800',
+    color: colors.primary,
     textAlign: 'center',
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors, cardShadow } from '@/constants/theme';
 
 // El component da bya5od list choices w yeraga3 lel parent el choice elli etdas 3aleh.
 export default function SimplePickerModal({ visible, title, options, onSelect, onClose }) {
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(23,35,28,0.46)',
   },
   background: {
     ...StyleSheet.absoluteFillObject,
@@ -46,26 +47,28 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 320,
     padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    ...cardShadow,
   },
   title: {
     marginBottom: 12,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#111111',
+    fontSize: 19,
+    fontWeight: '800',
+    color: colors.text,
     textAlign: 'center',
   },
   option: {
-    paddingVertical: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eeeeee',
+    borderBottomColor: colors.border,
   },
   optionText: {
     fontSize: 15,
-    color: '#222222',
+    color: colors.primaryDark,
     textAlign: 'center',
   },
 });

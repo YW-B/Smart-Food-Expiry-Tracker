@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors, cardShadow } from '@/constants/theme';
 
 export default function FoodItemCard({ item, onPress, badge, subtitle }) {
 
@@ -34,13 +35,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    backgroundColor: '#ffffff',
-    borderRadius: 4,
-    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    marginVertical: 6,
+    marginVertical: 7,
+    ...cardShadow,
   },
   contentContainer: {
     flex: 1,
@@ -49,17 +51,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#555555',
+    color: colors.mutedText,
   },
   badgeContainer: {
-    backgroundColor: '#cccccc',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.accentSoft,
+    borderWidth: 0,
     borderRadius: 16,
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -70,6 +71,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#111111',
+    color: colors.primaryDark,
   },
 });

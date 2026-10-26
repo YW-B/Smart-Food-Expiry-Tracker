@@ -11,6 +11,7 @@ import { router } from 'expo-router';
 import ScreenHeader from '@/components/ScreenHeader';
 import FoodItemCard from '@/components/FoodItemCard';
 import { sampleItems } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -168,22 +169,24 @@ export default function InventoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 90,
+    paddingHorizontal: 18,
+    paddingTop: 6,
+    paddingBottom: 100,
   },
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 24,
-    paddingHorizontal: 14,
-    height: 44,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 54,
     marginBottom: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
+    ...cardShadow,
   },
   searchIcon: {
     fontSize: 16,
@@ -192,48 +195,49 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: '#111111',
+    color: colors.text,
   },
   filterRow: {
     flexDirection: 'row',
     marginBottom: 14,
   },
   filterPill: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 20,
-    paddingVertical: 8,
+    paddingVertical: 9,
     paddingHorizontal: 16,
     marginRight: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   filterPillActive: {
-    backgroundColor: '#888888',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   filterText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#222222',
+    color: colors.primaryDark,
   },
   filterTextActive: {
-    color: '#ffffff',
+    color: colors.surface,
   },
   sortRow: {
     alignItems: 'flex-end',
     marginBottom: 14,
   },
   sortButton: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: colors.surface,
   },
   sortText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   emptyContainer: {
     padding: 32,
@@ -241,30 +245,25 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#777777',
+    color: colors.mutedText,
   },
   fab: {
     position: 'absolute',
     right: 20,
     bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#9e9e9e',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primary,
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000000',
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    ...cardShadow,
   },
   fabText: {
     fontSize: 28,
     fontWeight: '400',
-    color: '#111111',
+    color: colors.surface,
     lineHeight: 32,
   },
 });

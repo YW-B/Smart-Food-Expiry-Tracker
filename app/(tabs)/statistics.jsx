@@ -9,6 +9,7 @@ import {
 import ScreenHeader from '@/components/ScreenHeader';
 import NumberCard from '@/components/NumberCard';
 import { sampleStats } from '@/data/sampleData';
+import { colors, cardShadow } from '@/constants/theme';
 
 const periods = ['Week', 'Month', 'Year'];
 
@@ -115,39 +116,41 @@ export default function StatisticsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 6,
     paddingBottom: 40,
   },
   periodTabsRow: {
     flexDirection: 'row',
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
+    backgroundColor: colors.surface,
   },
   periodTab: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderRightWidth: 1,
-    borderRightColor: '#333333',
+    borderRightColor: colors.border,
   },
   periodTabActive: {
-    backgroundColor: '#b5b5b5',
+    backgroundColor: colors.primary,
   },
   periodTabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
+    color: colors.mutedText,
   },
   periodTabTextActive: {
-    color: '#111111',
+    color: colors.surface,
     fontWeight: 'bold',
   },
   statsRow: {
@@ -158,17 +161,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   chartCard: {
-    borderWidth: 1.5,
-    borderColor: '#333333',
-    borderRadius: 6,
-    padding: 16,
-    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 20,
+    padding: 18,
+    backgroundColor: colors.surface,
     marginBottom: 16,
+    ...cardShadow,
   },
   chartTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#111111',
+    color: colors.text,
     marginBottom: 16,
   },
   barChartContainer: {
@@ -190,20 +194,20 @@ const styles = StyleSheet.create({
   },
   barVisual: {
     width: 38,
-    backgroundColor: '#b5b5b5',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.primary,
+    borderWidth: 0,
+    borderRadius: 8,
   },
   barLabel: {
     marginTop: 6,
     fontSize: 12,
     fontWeight: '600',
-    color: '#444444',
+    color: colors.mutedText,
   },
   chartBaseline: {
     width: '100%',
     height: 2,
-    backgroundColor: '#333333',
+    backgroundColor: colors.border,
   },
   pieRow: {
     flexDirection: 'row',
@@ -215,9 +219,9 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     borderRadius: 65,
-    backgroundColor: '#b5b5b5',
-    borderWidth: 2,
-    borderColor: '#333333',
+    backgroundColor: colors.primary,
+    borderWidth: 8,
+    borderColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -225,16 +229,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.surface,
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   circleRatioText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
   legendContainer: {
     justifyContent: 'center',
@@ -247,23 +250,23 @@ const styles = StyleSheet.create({
   legendBoxConsumed: {
     width: 18,
     height: 18,
-    backgroundColor: '#b5b5b5',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.primary,
+    borderWidth: 0,
+    borderRadius: 5,
     marginRight: 10,
   },
   legendBoxDiscarded: {
     width: 18,
     height: 18,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#333333',
+    backgroundColor: colors.accent,
+    borderWidth: 0,
+    borderRadius: 5,
     marginRight: 10,
   },
   legendLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#222222',
+    color: colors.text,
   },
   wasteRateContainer: {
     marginTop: 4,
@@ -272,6 +275,6 @@ const styles = StyleSheet.create({
   wasteRateText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111111',
+    color: colors.primaryDark,
   },
 });
