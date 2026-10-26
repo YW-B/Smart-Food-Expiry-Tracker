@@ -5,6 +5,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
  * ScreenHeader
@@ -29,36 +30,41 @@ export default function ScreenHeader({
   }
 
   return (
-    <View style={styles.header}>
-      {/* Left Slot: Back Button or spacer */}
-      <View style={styles.sideSlot}>
-        {showBack ? (
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBackPress}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Text style={styles.backArrow}>{'<'}</Text>
-          </TouchableOpacity>
-        ) : null}
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.header}>
+        {/* Left Slot: Back Button or spacer */}
+        <View style={styles.sideSlot}>
+          {showBack ? (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBackPress}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Text style={styles.backArrow}>{'<'}</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
 
-      {/* Center Slot: Screen Title */}
-      <View style={styles.centerSlot}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-      </View>
+        {/* Center Slot: Screen Title */}
+        <View style={styles.centerSlot}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
 
-      {/* Right Slot: Custom action or spacer */}
-      <View style={[styles.sideSlot, styles.rightSlot]}>
-        {rightElement}
+        {/* Right Slot: Custom action or spacer */}
+        <View style={[styles.sideSlot, styles.rightSlot]}>
+          {rightElement}
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: '#e6e6e6',
+  },
   header: {
     height: 60,
     backgroundColor: '#e6e6e6',

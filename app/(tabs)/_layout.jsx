@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 export default function TabLayout() {
   return (
@@ -95,11 +95,10 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 64,
+    minHeight: 64,
     backgroundColor: '#dcdcdc',
     borderTopWidth: 2,
     borderTopColor: '#333333',
-    paddingBottom: 8,
     paddingTop: 8,
   },
   tabBarItem: {
