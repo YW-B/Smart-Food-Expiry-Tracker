@@ -19,7 +19,7 @@ const filterOptions = [
 ];
 
 export default function InventoryScreen() {
-  // These values store the search, filter, and sort chosen by the user.
+  // El variables dol bey7afzo el search, el filter, wel sort elli el user ekhtarhom.
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('expiry');

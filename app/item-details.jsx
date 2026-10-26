@@ -24,7 +24,7 @@ export default function ItemDetailsScreen() {
   const selectedItem =
     sampleItems.find((item) => item.id === itemId) || sampleItems[1];
 
-  // These values start with the selected item's details and change as the user edits.
+  // El values dol beyebda2o be details el item, w beyett8ayaro lama el user ye3adelhom.
   const [name, setName] = useState(selectedItem.name);
   const [category, setCategory] = useState(selectedItem.category);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);

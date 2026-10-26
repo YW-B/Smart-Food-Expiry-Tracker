@@ -58,7 +58,7 @@ export default function HomeScreen() {
         )}
       </ScrollView>
 
-      {/* Pressing this button opens the form for a new food item. */}
+      {/* Lama el user yedos 3ala el button da, hayro7 le screen Add Item. */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => router.push('/add-item')}

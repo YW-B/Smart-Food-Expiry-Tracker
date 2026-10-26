@@ -10,7 +10,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
 
 export default function ScannerScreen() {
-  // This value remembers whether the flash button is on or off.
+  // El variable da bey7faz el flash sh8al wala ma2fool.
   const [flashOn, setFlashOn] = useState(false);
   const detectedProduct = 'Fresh Milk 1L';
 

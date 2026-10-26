@@ -14,7 +14,7 @@ import SimpleButton from '@/components/SimpleButton';
 import { sampleCategories } from '@/data/sampleData';
 
 export default function CategoriesScreen() {
-  // This state stores the category list shown on the screen.
+  // El state da bey7faz list el categories elli zahra 3ala el screen.
   const [categories, setCategories] = useState(sampleCategories);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');

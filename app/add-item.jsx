@@ -20,7 +20,7 @@ const categoryNames = sampleCategories.map((category) => category.name);
 export default function AddItemScreen() {
   const params = useLocalSearchParams();
 
-  // Each state variable stores one value typed or selected in the form.
+  // Kol state variable hena bey7faz value el user katabha aw ekhtarha fel form.
   const [name, setName] = useState(params.scannedName ? String(params.scannedName) : '');
   const [category, setCategory] = useState('');
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);

@@ -13,7 +13,7 @@ import { sampleStats } from '@/data/sampleData';
 const periods = ['Week', 'Month', 'Year'];
 
 export default function StatisticsScreen() {
-  // This value stores the time period selected at the top of the screen.
+  // El variable da bey7faz el period elli el user ekhtarha fo2.
   const [selectedPeriod, setSelectedPeriod] = useState('Week');
   const stats = sampleStats;
 

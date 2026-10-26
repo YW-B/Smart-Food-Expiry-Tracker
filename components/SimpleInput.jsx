@@ -1,4 +1,4 @@
-// A simple text input used by forms in the app.
+// Da input baseet beyesta2bel el text men el user.
 
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';

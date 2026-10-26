@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// This component receives a list of words and tells the parent which one was pressed.
+// El component da bya5od list choices w yeraga3 lel parent el choice elli etdas 3aleh.
 export default function SimplePickerModal({ visible, title, options, onSelect, onClose }) {
   return (
     <Modal

@@ -11,7 +11,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import { sampleNotifications } from '@/data/sampleData';
 
 export default function NotificationsScreen() {
-  // The list is state because pressing "Mark all as read" changes each item.
+  // El list de state 3ashan "Mark all as read" beyghayar kol notification.
   const [notifications, setNotifications] = useState(sampleNotifications);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
 

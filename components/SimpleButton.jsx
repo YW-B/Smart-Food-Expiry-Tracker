@@ -1,4 +1,4 @@
-// A simple button used throughout the app.
+// Da button baseet momken nesta5demo fe ay screen.
 
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
@@ -31,12 +31,12 @@ const styles = StyleSheet.create({
     marginVertical: 6,
     borderWidth: 1.5,
   },
-  // Primary: gray filled background matching wireframe wire buttons
+  // El primary button lawn el background beta3o gray.
   primaryButton: {
     backgroundColor: '#b5b5b5',
     borderColor: '#333333',
   },
-  // Secondary: clean white background with dark border
+  // El secondary button abyad w 7awaleh border 8ame2.
   secondaryButton: {
     backgroundColor: '#ffffff',
     borderColor: '#333333',

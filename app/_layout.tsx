@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 export {
-  // Catch any errors thrown by the Layout component.
+  // Da bey3red error screen law 7asal error fel navigation.
   ErrorBoundary,
 } from 'expo-router';
 

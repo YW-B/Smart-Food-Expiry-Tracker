@@ -21,7 +21,7 @@ const reminderOptions = [
 const sortOptions = ['Expiry Date', 'Item Name', 'Category'];
 
 export default function SettingsScreen() {
-  // These values store the preferences selected on this screen.
+  // El variables dol bey7afzo el settings elli el user ekhtarha.
   const [expiryAlerts, setExpiryAlerts] = useState(true);
   const [remindDays, setRemindDays] = useState('2 days before');
   const [showRemindPicker, setShowRemindPicker] = useState(false);

@@ -1,4 +1,4 @@
-// A reusable card component to display a food item in a list.
+// El component da bey3red food item wa7ed gowwa el list.
 
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';

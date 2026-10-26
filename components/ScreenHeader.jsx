@@ -1,6 +1,5 @@
-// components/ScreenHeader.jsx
-// A reusable beginner-friendly screen header bar.
-// Displays the screen title, an optional back button, and an optional right action element.
+// El component da howa el header elli benesta5demo fo2 fel screens.
+// Momken ye3red title, back button, aw button tani 3al yemeen.
 
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -20,7 +19,7 @@ export default function ScreenHeader({
   onBack,
   rightElement = null,
 }) {
-  // If the user provided a custom back function, call it, otherwise go back with Expo Router
+  // Law fe custom back function nesta5demha, gheir keda nerga3 be Expo Router.
   function handleBackPress() {
     if (onBack) {
       onBack();
@@ -32,7 +31,7 @@ export default function ScreenHeader({
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
-        {/* Left Slot: Back Button or spacer */}
+        {/* El makan da lel back button aw space fady. */}
         <View style={styles.sideSlot}>
           {showBack ? (
             <TouchableOpacity
@@ -45,14 +44,14 @@ export default function ScreenHeader({
           ) : null}
         </View>
 
-        {/* Center Slot: Screen Title */}
+        {/* Hena ben3red esm el screen fel nos. */}
         <View style={styles.centerSlot}>
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
         </View>
 
-        {/* Right Slot: Custom action or spacer */}
+        {/* El makan da le ay action 3al yemeen aw space fady. */}
         <View style={[styles.sideSlot, styles.rightSlot]}>
           {rightElement}
         </View>

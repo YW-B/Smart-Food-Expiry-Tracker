@@ -1,4 +1,4 @@
-// A reusable card for one label and one number.
+// El component da bey3red label wa7ed ma3 ra2am wa7ed.
 
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
