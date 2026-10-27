@@ -36,20 +36,20 @@ export default function AddItemScreen() {
   );
 
   useEffect(() => {
-    loadCategories();
-  }, []);
-
-  async function loadCategories() {
-    try {
-      // Hena bngeb el categories mn el database.
-      const savedCategories = await db.getAllAsync(
-        'SELECT * FROM Category ORDER BY name'
-      );
-      setCategories(savedCategories);
-    } catch (error) {
-      Alert.alert('Error', 'Could not load categories.');
+    async function loadCategories() {
+      try {
+        // Hena bngeb el categories mn el database.
+        const savedCategories = await db.getAllAsync(
+          'SELECT * FROM Category ORDER BY name'
+        );
+        setCategories(savedCategories);
+      } catch (_error) {
+        Alert.alert('Error', 'Could not load categories.');
+      }
     }
-  }
+
+    loadCategories();
+  }, [db]);
 
   async function saveItem() {
     if (name.trim() === '') {
@@ -113,7 +113,7 @@ export default function AddItemScreen() {
       Alert.alert('Item Saved', `"${name.trim()}" has been added to your inventory!`, [
         { text: 'OK', onPress: () => router.back() },
       ]);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Could not save the item. Please try again.');
     }
   }

@@ -14,6 +14,61 @@ import { colors, cardShadow } from '@/constants/theme';
 
 const periods = ['Week', 'Month', 'Year'];
 
+function dateToText(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getPeriodStart(selectedPeriod) {
+  const today = new Date();
+
+  if (selectedPeriod === 'Week') {
+    today.setDate(today.getDate() - 6);
+  } else if (selectedPeriod === 'Month') {
+    today.setDate(1);
+  } else {
+    today.setMonth(0, 1);
+  }
+
+  return dateToText(today);
+}
+
+function makeChartData(items, selectedPeriod) {
+  if (selectedPeriod === 'Week') {
+    const labels = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'];
+    const start = new Date(`${getPeriodStart(selectedPeriod)}T00:00:00`);
+
+    return labels.map((label, index) => {
+      const value = items.filter((item) => {
+        const itemDate = new Date(`${item.createdAt}T00:00:00`);
+        const dayNumber = Math.round((itemDate - start) / 86400000);
+        return dayNumber === index;
+      }).length;
+      return { label, value };
+    });
+  }
+
+  if (selectedPeriod === 'Month') {
+    return ['W1', 'W2', 'W3', 'W4'].map((label, index) => {
+      const value = items.filter((item) => {
+        const day = Number(item.createdAt.slice(8, 10));
+        return Math.min(Math.floor((day - 1) / 7), 3) === index;
+      }).length;
+      return { label, value };
+    });
+  }
+
+  return ['Q1', 'Q2', 'Q3', 'Q4'].map((label, index) => {
+    const value = items.filter((item) => {
+      const month = Number(item.createdAt.slice(5, 7));
+      return Math.floor((month - 1) / 3) === index;
+    }).length;
+    return { label, value };
+  });
+}
+
 export default function StatisticsScreen() {
   const db = useSQLiteContext();
   // El variable da bey7faz el period elli el user ekhtarha fo2.
@@ -25,74 +80,13 @@ export default function StatisticsScreen() {
     chartData: [],
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      loadStatistics();
-    }, [db, selectedPeriod])
-  );
-
-  function dateToText(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  function getPeriodStart() {
-    const today = new Date();
-
-    if (selectedPeriod === 'Week') {
-      today.setDate(today.getDate() - 6);
-    } else if (selectedPeriod === 'Month') {
-      today.setDate(1);
-    } else {
-      today.setMonth(0, 1);
-    }
-
-    return dateToText(today);
-  }
-
-  function makeChartData(items) {
-    if (selectedPeriod === 'Week') {
-      const labels = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'];
-      const start = new Date(`${getPeriodStart()}T00:00:00`);
-
-      return labels.map((label, index) => {
-        const value = items.filter((item) => {
-          const itemDate = new Date(`${item.createdAt}T00:00:00`);
-          const dayNumber = Math.round((itemDate - start) / 86400000);
-          return dayNumber === index;
-        }).length;
-        return { label, value };
-      });
-    }
-
-    if (selectedPeriod === 'Month') {
-      return ['W1', 'W2', 'W3', 'W4'].map((label, index) => {
-        const value = items.filter((item) => {
-          const day = Number(item.createdAt.slice(8, 10));
-          return Math.min(Math.floor((day - 1) / 7), 3) === index;
-        }).length;
-        return { label, value };
-      });
-    }
-
-    return ['Q1', 'Q2', 'Q3', 'Q4'].map((label, index) => {
-      const value = items.filter((item) => {
-        const month = Number(item.createdAt.slice(5, 7));
-        return Math.floor((month - 1) / 3) === index;
-      }).length;
-      return { label, value };
-    });
-  }
-
-  async function loadStatistics() {
+  const loadStatistics = useCallback(async () => {
     try {
       // Hena bngeb el consumed wel discarded 7asab el period.
       const items = await db.getAllAsync(
         `SELECT status, createdAt FROM Item
          WHERE status IN ('Consumed', 'Discarded') AND createdAt >= ?`,
-        getPeriodStart()
+        getPeriodStart(selectedPeriod)
       );
       const consumed = items.filter((item) => item.status === 'Consumed').length;
       const discarded = items.filter((item) => item.status === 'Discarded').length;
@@ -105,12 +99,18 @@ export default function StatisticsScreen() {
         consumed,
         discarded,
         wasteRate,
-        chartData: makeChartData(items),
+        chartData: makeChartData(items, selectedPeriod),
       });
-    } catch (error) {
+    } catch (_error) {
       setStats({ consumed: 0, discarded: 0, wasteRate: 'N/A', chartData: [] });
     }
-  }
+  }, [db, selectedPeriod]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStatistics();
+    }, [loadStatistics])
+  );
 
   const totalFinished = stats.consumed + stats.discarded;
   const consumedPercent = totalFinished === 0

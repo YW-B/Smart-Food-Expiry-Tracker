@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
+import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { colors, cardShadow } from '@/constants/theme';
 
@@ -22,11 +23,7 @@ export default function CategoriesScreen() {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editingCategory, setEditingCategory] = useState(null);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  async function loadCategories() {
+  const loadCategories = useCallback(async () => {
     try {
       // Hena bngeb el categories ma3 3adad el items fel category.
       const savedCategories = await db.getAllAsync(`
@@ -37,10 +34,16 @@ export default function CategoriesScreen() {
         ORDER BY Category.name
       `);
       setCategories(savedCategories);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Could not load categories.');
     }
-  }
+  }, [db]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCategories();
+    }, [loadCategories])
+  );
 
   function deleteCategory(id, name, count) {
     if (count > 0) {
@@ -64,7 +67,7 @@ export default function CategoriesScreen() {
               // Hena bnmsa7 el category law mafihash items.
               await db.runAsync('DELETE FROM Category WHERE id = ?', id);
               await loadCategories();
-            } catch (error) {
+            } catch (_error) {
               Alert.alert('Error', 'Could not delete the category.');
             }
           },
@@ -122,7 +125,7 @@ export default function CategoriesScreen() {
       setNewCategoryName('');
       setEditingCategory(null);
       setModalVisible(false);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Could not save the category.');
     }
   }

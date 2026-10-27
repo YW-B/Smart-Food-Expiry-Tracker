@@ -30,29 +30,29 @@ export default function InventoryScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      async function loadItems() {
+        try {
+          // Hena bngeb el items ma3 esm el category mn el database.
+          const savedItems = await db.getAllAsync(`
+            SELECT Item.*, Category.name AS category
+            FROM Item
+            JOIN Category ON Item.categoryId = Category.id
+          `);
+
+          const readyItems = savedItems.map((item) => ({
+            ...item,
+            daysLeft: getDaysLeft(item.expiryDate),
+            displayExpiryDate: getCardDate(item.expiryDate),
+          }));
+          setItems(readyItems);
+        } catch (_error) {
+          setItems([]);
+        }
+      }
+
       loadItems();
     }, [db])
   );
-
-  async function loadItems() {
-    try {
-      // Hena bngeb el items ma3 esm el category mn el database.
-      const savedItems = await db.getAllAsync(`
-        SELECT Item.*, Category.name AS category
-        FROM Item
-        JOIN Category ON Item.categoryId = Category.id
-      `);
-
-      const readyItems = savedItems.map((item) => ({
-        ...item,
-        daysLeft: getDaysLeft(item.expiryDate),
-        displayExpiryDate: getCardDate(item.expiryDate),
-      }));
-      setItems(readyItems);
-    } catch (error) {
-      setItems([]);
-    }
-  }
 
   const filteredItems = items.filter((item) => {
     const matchesSearch =

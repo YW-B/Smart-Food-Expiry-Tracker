@@ -14,30 +14,30 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      async function loadItems() {
+        try {
+          // Hena bngeb a5er data 3ashan el Home yet7addet lama nerga3lo.
+          const savedItems = await db.getAllAsync(`
+            SELECT Item.*, Category.name AS category
+            FROM Item
+            JOIN Category ON Item.categoryId = Category.id
+            ORDER BY Item.expiryDate
+          `);
+
+          setItems(
+            savedItems.map((item) => ({
+              ...item,
+              daysLeft: getDaysLeft(item.expiryDate),
+            }))
+          );
+        } catch (_error) {
+          setItems([]);
+        }
+      }
+
       loadItems();
     }, [db])
   );
-
-  async function loadItems() {
-    try {
-      // Hena bngeb a5er data 3ashan el Home yet7addet lama nerga3lo.
-      const savedItems = await db.getAllAsync(`
-        SELECT Item.*, Category.name AS category
-        FROM Item
-        JOIN Category ON Item.categoryId = Category.id
-        ORDER BY Item.expiryDate
-      `);
-
-      setItems(
-        savedItems.map((item) => ({
-          ...item,
-          daysLeft: getDaysLeft(item.expiryDate),
-        }))
-      );
-    } catch (error) {
-      setItems([]);
-    }
-  }
 
   const expiringThisWeek = items.filter((item) => {
     return item.status === 'Active' && item.daysLeft >= 0 && item.daysLeft <= 7;

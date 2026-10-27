@@ -22,48 +22,48 @@ export default function NotificationsScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      async function loadNotifications() {
+        try {
+          await createExpiryNotifications(db);
+
+          // Hena bngeb el alerts ma3 data el item mn el database.
+          const savedNotifications = await db.getAllAsync(`
+            SELECT Notification.*, Item.name, Item.expiryDate
+            FROM Notification
+            JOIN Item ON Notification.itemId = Item.id
+            ORDER BY Notification.notifyDate DESC, Notification.id DESC
+          `);
+
+          const today = getTodayDatabaseDate();
+          const readyNotifications = savedNotifications.map((item) => {
+            const daysLeft = getDaysLeft(item.expiryDate);
+            let title = `${item.name} expires in ${daysLeft} days`;
+
+            if (daysLeft < 0) {
+              title = `${item.name} has expired`;
+            } else if (daysLeft === 0) {
+              title = `${item.name} expires today`;
+            } else if (daysLeft === 1) {
+              title = `${item.name} expires tomorrow`;
+            }
+
+            return {
+              ...item,
+              title,
+              isRead: item.isRead === 1,
+              section: item.notifyDate === today ? 'Today' : 'Earlier',
+              time: item.notifyDate === today ? 'Today' : getCardDate(item.notifyDate),
+            };
+          });
+          setNotifications(readyNotifications);
+        } catch (_error) {
+          setNotifications([]);
+        }
+      }
+
       loadNotifications();
     }, [db])
   );
-
-  async function loadNotifications() {
-    try {
-      await createExpiryNotifications(db);
-
-      // Hena bngeb el alerts ma3 data el item mn el database.
-      const savedNotifications = await db.getAllAsync(`
-        SELECT Notification.*, Item.name, Item.expiryDate
-        FROM Notification
-        JOIN Item ON Notification.itemId = Item.id
-        ORDER BY Notification.notifyDate DESC, Notification.id DESC
-      `);
-
-      const today = getTodayDatabaseDate();
-      const readyNotifications = savedNotifications.map((item) => {
-        const daysLeft = getDaysLeft(item.expiryDate);
-        let title = `${item.name} expires in ${daysLeft} days`;
-
-        if (daysLeft < 0) {
-          title = `${item.name} has expired`;
-        } else if (daysLeft === 0) {
-          title = `${item.name} expires today`;
-        } else if (daysLeft === 1) {
-          title = `${item.name} expires tomorrow`;
-        }
-
-        return {
-          ...item,
-          title,
-          isRead: item.isRead === 1,
-          section: item.notifyDate === today ? 'Today' : 'Earlier',
-          time: item.notifyDate === today ? 'Today' : getCardDate(item.notifyDate),
-        };
-      });
-      setNotifications(readyNotifications);
-    } catch (error) {
-      setNotifications([]);
-    }
-  }
 
   function toggleAlerts() {
     setAlertsEnabled(!alertsEnabled);
@@ -77,7 +77,7 @@ export default function NotificationsScreen() {
         currentNotifications.map((item) => ({ ...item, isRead: true }))
       );
       Alert.alert('Notifications', 'All notifications marked as read.');
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Could not update notifications.');
     }
   }
@@ -94,7 +94,7 @@ export default function NotificationsScreen() {
         )
       );
       Alert.alert('Expiry Alert', notification.title);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Could not open this notification.');
     }
   }

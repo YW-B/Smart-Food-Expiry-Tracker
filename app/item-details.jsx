@@ -40,49 +40,49 @@ export default function ItemDetailsScreen() {
   const [status, setStatus] = useState('Active');
 
   useEffect(() => {
-    loadItem();
-  }, [params.id]);
-
-  async function loadItem() {
-    if (!Number.isInteger(itemId)) {
-      Alert.alert('Item Not Found', 'This item ID is not valid.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
-      return;
-    }
-
-    try {
-      // Hena bngeb el item bel id beta3o w bngeb el categories.
-      const savedItem = await db.getFirstAsync(
-        `SELECT Item.*, Category.name AS category
-         FROM Item
-         JOIN Category ON Item.categoryId = Category.id
-         WHERE Item.id = ?`,
-        itemId
-      );
-      const savedCategories = await db.getAllAsync(
-        'SELECT * FROM Category ORDER BY name'
-      );
-
-      if (!savedItem) {
+    async function loadItem() {
+      if (!Number.isInteger(itemId)) {
         Alert.alert('Item Not Found', 'This item does not exist.', [
           { text: 'OK', onPress: () => router.back() },
         ]);
         return;
       }
 
-      setCategories(savedCategories);
-      setName(savedItem.name);
-      setCategory(savedItem.category);
-      setQuantity(savedItem.quantity);
-      setExpiryDate(getDisplayDate(savedItem.expiryDate));
-      setBarcode(savedItem.barcode || '');
-      setStatus(savedItem.status);
-      setItemFound(true);
-    } catch (error) {
-      Alert.alert('Error', 'Could not load this item.');
+      try {
+        // Hena bngeb el item bel id beta3o w bngeb el categories.
+        const savedItem = await db.getFirstAsync(
+          `SELECT Item.*, Category.name AS category
+           FROM Item
+           JOIN Category ON Item.categoryId = Category.id
+           WHERE Item.id = ?`,
+          itemId
+        );
+        const savedCategories = await db.getAllAsync(
+          'SELECT * FROM Category ORDER BY name'
+        );
+
+        if (!savedItem) {
+          Alert.alert('Item Not Found', 'This item does not exist.', [
+            { text: 'OK', onPress: () => router.back() },
+          ]);
+          return;
+        }
+
+        setCategories(savedCategories);
+        setName(savedItem.name);
+        setCategory(savedItem.category);
+        setQuantity(savedItem.quantity);
+        setExpiryDate(getDisplayDate(savedItem.expiryDate));
+        setBarcode(savedItem.barcode || '');
+        setStatus(savedItem.status);
+        setItemFound(true);
+      } catch (_error) {
+        Alert.alert('Error', 'Could not load this item.');
+      }
     }
-  }
+
+    loadItem();
+  }, [db, itemId]);
 
   function decreaseQuantity() {
     if (quantity > 1) {
@@ -140,7 +140,7 @@ export default function ItemDetailsScreen() {
       Alert.alert('Changes Saved', `"${name.trim()}" has been updated successfully!`, [
         { text: 'OK', onPress: () => router.back() },
       ]);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Could not update the item.');
     }
   }
@@ -161,7 +161,7 @@ export default function ItemDetailsScreen() {
               Alert.alert('Deleted', 'Item was removed.', [
                 { text: 'OK', onPress: () => router.back() },
               ]);
-            } catch (error) {
+            } catch (_error) {
               Alert.alert('Error', 'Could not delete the item.');
             }
           },
