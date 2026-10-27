@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -11,17 +11,46 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleButton from '@/components/SimpleButton';
-import { sampleCategories } from '@/data/sampleData';
+import { useSQLiteContext } from 'expo-sqlite';
 import { colors, cardShadow } from '@/constants/theme';
 
 export default function CategoriesScreen() {
+  const db = useSQLiteContext();
   // El state da bey7faz list el categories elli zahra 3ala el screen.
-  const [categories, setCategories] = useState(sampleCategories);
+  const [categories, setCategories] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editingCategory, setEditingCategory] = useState(null);
 
-  function deleteCategory(id, name) {
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  async function loadCategories() {
+    try {
+      // Hena bngeb el categories ma3 3adad el items fel category.
+      const savedCategories = await db.getAllAsync(`
+        SELECT Category.id, Category.name, COUNT(Item.id) AS count
+        FROM Category
+        LEFT JOIN Item ON Category.id = Item.categoryId
+        GROUP BY Category.id, Category.name
+        ORDER BY Category.name
+      `);
+      setCategories(savedCategories);
+    } catch (error) {
+      Alert.alert('Error', 'Could not load categories.');
+    }
+  }
+
+  function deleteCategory(id, name, count) {
+    if (count > 0) {
+      Alert.alert(
+        'Category In Use',
+        'Move or delete the items in this category first.'
+      );
+      return;
+    }
+
     Alert.alert(
       'Delete Category',
       `Are you sure you want to delete "${name}"?`,
@@ -30,10 +59,14 @@ export default function CategoriesScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
-            setCategories((currentCategories) => {
-              return currentCategories.filter((category) => category.id !== id);
-            });
+          onPress: async () => {
+            try {
+              // Hena bnmsa7 el category law mafihash items.
+              await db.runAsync('DELETE FROM Category WHERE id = ?', id);
+              await loadCategories();
+            } catch (error) {
+              Alert.alert('Error', 'Could not delete the category.');
+            }
           },
         },
       ]
@@ -52,7 +85,7 @@ export default function CategoriesScreen() {
     setModalVisible(true);
   }
 
-  function saveCategory() {
+  async function saveCategory() {
     const cleanName = newCategoryName.trim();
 
     if (cleanName === '') {
@@ -60,27 +93,38 @@ export default function CategoriesScreen() {
       return;
     }
 
-    if (editingCategory) {
-      setCategories((currentCategories) =>
-        currentCategories.map((category) =>
-          category.id === editingCategory.id
-            ? { ...category, name: cleanName }
-            : category
-        )
+    try {
+      const duplicate = await db.getFirstAsync(
+        `SELECT id FROM Category
+         WHERE name = ? COLLATE NOCASE AND id != ?`,
+        cleanName,
+        editingCategory ? editingCategory.id : 0
       );
-    } else {
-      const lastCategory = categories[categories.length - 1];
-      const newCategory = {
-        id: lastCategory ? lastCategory.id + 1 : 1,
-        name: cleanName,
-        count: 0,
-      };
-      setCategories((currentCategories) => [...currentCategories, newCategory]);
-    }
 
-    setNewCategoryName('');
-    setEditingCategory(null);
-    setModalVisible(false);
+      if (duplicate) {
+        Alert.alert('Duplicate Category', 'This category name already exists.');
+        return;
+      }
+
+      if (editingCategory) {
+        // Hena bn8ayar esm el category fel database.
+        await db.runAsync(
+          'UPDATE Category SET name = ? WHERE id = ?',
+          cleanName,
+          editingCategory.id
+        );
+      } else {
+        // Hena bnzawed category gdeeda fel database.
+        await db.runAsync('INSERT INTO Category (name) VALUES (?)', cleanName);
+      }
+
+      await loadCategories();
+      setNewCategoryName('');
+      setEditingCategory(null);
+      setModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', 'Could not save the category.');
+    }
   }
 
   return (
@@ -104,7 +148,7 @@ export default function CategoriesScreen() {
 
               <TouchableOpacity
                 style={[styles.actionButton, styles.deleteActionButton]}
-                onPress={() => deleteCategory(category.id, category.name)}
+                onPress={() => deleteCategory(category.id, category.name, category.count)}
               >
                 <Text style={[styles.actionButtonText, styles.deleteActionText]}>del</Text>
               </TouchableOpacity>
