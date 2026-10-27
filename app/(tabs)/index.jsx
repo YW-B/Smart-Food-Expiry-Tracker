@@ -1,23 +1,54 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import ScreenHeader from '@/components/ScreenHeader';
 import NumberCard from '@/components/NumberCard';
 import FoodItemCard from '@/components/FoodItemCard';
-import { sampleItems } from '@/data/sampleData';
 import { colors, cardShadow } from '@/constants/theme';
+import { getDaysLeft } from '@/utils/dateHelpers';
 
 export default function HomeScreen() {
-  const expiringThisWeek = sampleItems.filter((item) => {
+  const db = useSQLiteContext();
+  const [items, setItems] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadItems();
+    }, [db])
+  );
+
+  async function loadItems() {
+    try {
+      // Hena bngeb a5er data 3ashan el Home yet7addet lama nerga3lo.
+      const savedItems = await db.getAllAsync(`
+        SELECT Item.*, Category.name AS category
+        FROM Item
+        JOIN Category ON Item.categoryId = Category.id
+        ORDER BY Item.expiryDate
+      `);
+
+      setItems(
+        savedItems.map((item) => ({
+          ...item,
+          daysLeft: getDaysLeft(item.expiryDate),
+        }))
+      );
+    } catch (error) {
+      setItems([]);
+    }
+  }
+
+  const expiringThisWeek = items.filter((item) => {
     return item.status === 'Active' && item.daysLeft >= 0 && item.daysLeft <= 7;
   });
 
-  const expiringSoonCount = sampleItems.filter(
+  const expiringSoonCount = items.filter(
     (item) => item.status === 'Active' && item.daysLeft >= 0 && item.daysLeft <= 3
   ).length;
 
-  const expiredCount = sampleItems.filter(
-    (item) => item.daysLeft < 0 || item.status === 'Discarded'
+  const expiredCount = items.filter(
+    (item) => item.daysLeft < 0
   ).length;
 
   function openItem(itemId) {
@@ -46,7 +77,7 @@ export default function HomeScreen() {
         <View style={styles.statsRow}>
           <NumberCard label="Expiring Soon:" value={expiringSoonCount} />
           <NumberCard label="Expired:" value={expiredCount} />
-          <NumberCard label="Total Items:" value={sampleItems.length} />
+          <NumberCard label="Total Items:" value={items.length} />
         </View>
 
         <Text style={styles.sectionTitle}>Expiring This Week</Text>
