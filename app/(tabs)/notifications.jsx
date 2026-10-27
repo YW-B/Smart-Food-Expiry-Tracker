@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -8,27 +8,95 @@ import {
   View,
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
-import { sampleNotifications } from '@/data/sampleData';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { colors, cardShadow } from '@/constants/theme';
+import { createExpiryNotifications } from '@/database/database';
+import { getCardDate, getDaysLeft, getTodayDatabaseDate } from '@/utils/dateHelpers';
 
 export default function NotificationsScreen() {
+  const db = useSQLiteContext();
   // El list de state 3ashan "Mark all as read" beyghayar kol notification.
-  const [notifications, setNotifications] = useState(sampleNotifications);
+  const [notifications, setNotifications] = useState([]);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadNotifications();
+    }, [db])
+  );
+
+  async function loadNotifications() {
+    try {
+      await createExpiryNotifications(db);
+
+      // Hena bngeb el alerts ma3 data el item mn el database.
+      const savedNotifications = await db.getAllAsync(`
+        SELECT Notification.*, Item.name, Item.expiryDate
+        FROM Notification
+        JOIN Item ON Notification.itemId = Item.id
+        ORDER BY Notification.notifyDate DESC, Notification.id DESC
+      `);
+
+      const today = getTodayDatabaseDate();
+      const readyNotifications = savedNotifications.map((item) => {
+        const daysLeft = getDaysLeft(item.expiryDate);
+        let title = `${item.name} expires in ${daysLeft} days`;
+
+        if (daysLeft < 0) {
+          title = `${item.name} has expired`;
+        } else if (daysLeft === 0) {
+          title = `${item.name} expires today`;
+        } else if (daysLeft === 1) {
+          title = `${item.name} expires tomorrow`;
+        }
+
+        return {
+          ...item,
+          title,
+          isRead: item.isRead === 1,
+          section: item.notifyDate === today ? 'Today' : 'Earlier',
+          time: item.notifyDate === today ? 'Today' : getCardDate(item.notifyDate),
+        };
+      });
+      setNotifications(readyNotifications);
+    } catch (error) {
+      setNotifications([]);
+    }
+  }
 
   function toggleAlerts() {
     setAlertsEnabled(!alertsEnabled);
   }
 
-  function markAllAsRead() {
-    setNotifications((currentNotifications) =>
-      currentNotifications.map((item) => ({ ...item, isRead: true }))
-    );
-    Alert.alert('Notifications', 'All notifications marked as read.');
+  async function markAllAsRead() {
+    try {
+      // Hena bn3alem kol el notifications enha et2aret.
+      await db.runAsync('UPDATE Notification SET isRead = 1');
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((item) => ({ ...item, isRead: true }))
+      );
+      Alert.alert('Notifications', 'All notifications marked as read.');
+    } catch (error) {
+      Alert.alert('Error', 'Could not update notifications.');
+    }
   }
 
-  function showNotification(notification) {
-    Alert.alert('Expiry Alert', notification.title);
+  async function showNotification(notification) {
+    try {
+      await db.runAsync(
+        'UPDATE Notification SET isRead = 1 WHERE id = ?',
+        notification.id
+      );
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((item) =>
+          item.id === notification.id ? { ...item, isRead: true } : item
+        )
+      );
+      Alert.alert('Expiry Alert', notification.title);
+    } catch (error) {
+      Alert.alert('Error', 'Could not open this notification.');
+    }
   }
 
   const sections = ['Today', 'Earlier'];
