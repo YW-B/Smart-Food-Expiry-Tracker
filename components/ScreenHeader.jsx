@@ -51,7 +51,7 @@ export default function ScreenHeader({
             {title}
           </Text>
         </View>
-
+ 
         {/* El makan da le ay action 3al yemeen aw space fady. */}
         <View style={[styles.sideSlot, styles.rightSlot]}>
           {rightElement}
