@@ -34,6 +34,7 @@
           "backgroundColor": "#F5F7F4"
         }
       ],
+      "expo-sqlite",
       "expo-web-browser"
     ],
     "experiments": {

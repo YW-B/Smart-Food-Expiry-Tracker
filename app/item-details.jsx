@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -8,30 +8,81 @@ import {
   View,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleInput from '@/components/SimpleInput';
 import SimpleButton from '@/components/SimpleButton';
 import SimplePickerModal from '@/components/SimplePickerModal';
-import { sampleCategories, sampleItems } from '@/data/sampleData';
 import { colors, cardShadow } from '@/constants/theme';
+import {
+  getDatabaseDate,
+  getDaysLeft,
+  getDisplayDate,
+  getTodayDatabaseDate,
+} from '@/utils/dateHelpers';
 
-const categoryNames = sampleCategories.map((category) => category.name);
 const statusOptions = ['Active', 'Consumed', 'Discarded'];
 
 export default function ItemDetailsScreen() {
   const params = useLocalSearchParams();
-  const itemId = params.id ? parseInt(String(params.id), 10) : 2;
-
-  const selectedItem =
-    sampleItems.find((item) => item.id === itemId) || sampleItems[1];
+  const db = useSQLiteContext();
+  const itemId = params.id ? parseInt(String(params.id), 10) : NaN;
 
   // El values dol beyebda2o be details el item, w beyett8ayaro lama el user ye3adelhom.
-  const [name, setName] = useState(selectedItem.name);
-  const [category, setCategory] = useState(selectedItem.category);
+  const [itemFound, setItemFound] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
-  const [quantity, setQuantity] = useState(selectedItem.quantity);
-  const [expiryDate, setExpiryDate] = useState(selectedItem.expiryDate);
-  const [status, setStatus] = useState(selectedItem.status);
+  const [quantity, setQuantity] = useState(1);
+  const [expiryDate, setExpiryDate] = useState('');
+  const [barcode, setBarcode] = useState('');
+  const [status, setStatus] = useState('Active');
+
+  useEffect(() => {
+    async function loadItem() {
+      if (!Number.isInteger(itemId)) {
+        Alert.alert('Item Not Found', 'This item does not exist.', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+        return;
+      }
+
+      try {
+        // Hena bngeb el item bel id beta3o w bngeb el categories.
+        const savedItem = await db.getFirstAsync(
+          `SELECT Item.*, Category.name AS category
+           FROM Item
+           JOIN Category ON Item.categoryId = Category.id
+           WHERE Item.id = ?`,
+          itemId
+        );
+        const savedCategories = await db.getAllAsync(
+          'SELECT * FROM Category ORDER BY name'
+        );
+
+        if (!savedItem) {
+          Alert.alert('Item Not Found', 'This item does not exist.', [
+            { text: 'OK', onPress: () => router.back() },
+          ]);
+          return;
+        }
+
+        setCategories(savedCategories);
+        setName(savedItem.name);
+        setCategory(savedItem.category);
+        setQuantity(savedItem.quantity);
+        setExpiryDate(getDisplayDate(savedItem.expiryDate));
+        setBarcode(savedItem.barcode || '');
+        setStatus(savedItem.status);
+        setItemFound(true);
+      } catch (_error) {
+        Alert.alert('Error', 'Could not load this item.');
+      }
+    }
+
+    loadItem();
+  }, [db, itemId]);
 
   function decreaseQuantity() {
     if (quantity > 1) {
@@ -43,22 +94,55 @@ export default function ItemDetailsScreen() {
     setQuantity(quantity + 1);
   }
 
-  function saveChanges() {
+  async function saveChanges() {
     if (name.trim() === '') {
       Alert.alert('Validation Error', 'Item name cannot be empty.');
       return;
     }
 
-    Alert.alert(
-      'Changes Saved',
-      `"${name}" has been updated successfully! (Local state demo)`,
-      [
-        {
-          text: 'OK',
-          onPress: () => router.back(),
-        },
-      ]
-    );
+    const databaseDate = getDatabaseDate(expiryDate);
+    if (!databaseDate) {
+      Alert.alert('Validation Error', 'Please enter a real date as DD / MM / YYYY.');
+      return;
+    }
+
+    const selectedCategory = categories.find((item) => item.name === category);
+    if (!selectedCategory) {
+      Alert.alert('Validation Error', 'Please select a valid category.');
+      return;
+    }
+
+    try {
+      // Hena bn7addet el item fel database.
+      await db.runAsync(
+        `UPDATE Item
+         SET name = ?, categoryId = ?, quantity = ?, expiryDate = ?, status = ?
+         WHERE id = ?`,
+        name.trim(),
+        selectedCategory.id,
+        quantity,
+        databaseDate,
+        status,
+        itemId
+      );
+
+      if (status === 'Active' && getDaysLeft(databaseDate) <= 7) {
+        await db.runAsync(
+          `INSERT OR IGNORE INTO Notification (itemId, notifyDate, isSent, isRead)
+           VALUES (?, ?, 1, 0)`,
+          itemId,
+          getTodayDatabaseDate()
+        );
+      } else {
+        await db.runAsync('DELETE FROM Notification WHERE itemId = ?', itemId);
+      }
+
+      Alert.alert('Changes Saved', `"${name.trim()}" has been updated successfully!`, [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } catch (_error) {
+      Alert.alert('Error', 'Could not update the item.');
+    }
   }
 
   function deleteItem() {
@@ -70,10 +154,16 @@ export default function ItemDetailsScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
-            Alert.alert('Deleted', 'Item was removed.', [
-              { text: 'OK', onPress: () => router.back() },
-            ]);
+          onPress: async () => {
+            try {
+              // Hena bnmsa7 el item w el notification beta3to.
+              await db.runAsync('DELETE FROM Item WHERE id = ?', itemId);
+              Alert.alert('Deleted', 'Item was removed.', [
+                { text: 'OK', onPress: () => router.back() },
+              ]);
+            } catch (_error) {
+              Alert.alert('Error', 'Could not delete the item.');
+            }
           },
         },
       ]
@@ -83,6 +173,25 @@ export default function ItemDetailsScreen() {
   function chooseCategory(selectedCategory) {
     setCategory(selectedCategory);
     setShowCategoryPicker(false);
+  }
+
+  function fillDateOneWeekFromNow() {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    setExpiryDate(`${day} / ${month} / ${date.getFullYear()}`);
+  }
+
+  if (!itemFound) {
+    return (
+      <View style={styles.container}>
+        <ScreenHeader title="Item Details" showBack={true} />
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>Loading item...</Text>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -154,9 +263,7 @@ export default function ItemDetailsScreen() {
             </View>
             <TouchableOpacity
               style={styles.calButton}
-              onPress={() => {
-                Alert.alert('Calendar', 'Expiry date picker will open native calendar.');
-              }}
+              onPress={fillDateOneWeekFromNow}
               activeOpacity={0.7}
             >
               <Text style={styles.calButtonText}>cal</Text>
@@ -167,7 +274,7 @@ export default function ItemDetailsScreen() {
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Barcode (read-only)</Text>
           <View style={styles.barcodeBox}>
-            <Text style={styles.barcodeText}>{selectedItem.barcode}</Text>
+            <Text style={styles.barcodeText}>{barcode || 'No barcode'}</Text>
           </View>
         </View>
 
@@ -215,7 +322,7 @@ export default function ItemDetailsScreen() {
       <SimplePickerModal
         visible={showCategoryPicker}
         title="Select Category"
-        options={categoryNames}
+        options={categories.map((item) => item.name)}
         onSelect={chooseCategory}
         onClose={() => setShowCategoryPicker(false)}
       />
@@ -232,6 +339,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingTop: 8,
     paddingBottom: 40,
+  },
+  messageContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  messageText: {
+    fontSize: 15,
+    color: colors.mutedText,
   },
   fieldGroup: {
     marginBottom: 16,

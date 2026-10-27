@@ -14,6 +14,7 @@ export default function ScannerScreen() {
   // El variable da bey7faz el flash sh8al wala ma2fool.
   const [flashOn, setFlashOn] = useState(false);
   const detectedProduct = 'Fresh Milk 1L';
+  const detectedBarcode = '5012345678900';
 
   function toggleFlash() {
     setFlashOn(!flashOn);
@@ -22,7 +23,10 @@ export default function ScannerScreen() {
   function useScannedItem() {
     router.replace({
       pathname: '/add-item',
-      params: { scannedName: detectedProduct },
+      params: {
+        scannedName: detectedProduct,
+        scannedBarcode: detectedBarcode,
+      },
     });
   }
 

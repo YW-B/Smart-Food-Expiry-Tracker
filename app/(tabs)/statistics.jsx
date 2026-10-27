@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -8,15 +8,115 @@ import {
 } from 'react-native';
 import ScreenHeader from '@/components/ScreenHeader';
 import NumberCard from '@/components/NumberCard';
-import { sampleStats } from '@/data/sampleData';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { colors, cardShadow } from '@/constants/theme';
 
 const periods = ['Week', 'Month', 'Year'];
 
+function dateToText(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getPeriodStart(selectedPeriod) {
+  const today = new Date();
+
+  if (selectedPeriod === 'Week') {
+    today.setDate(today.getDate() - 6);
+  } else if (selectedPeriod === 'Month') {
+    today.setDate(1);
+  } else {
+    today.setMonth(0, 1);
+  }
+
+  return dateToText(today);
+}
+
+function makeChartData(items, selectedPeriod) {
+  if (selectedPeriod === 'Week') {
+    const labels = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'];
+    const start = new Date(`${getPeriodStart(selectedPeriod)}T00:00:00`);
+
+    return labels.map((label, index) => {
+      const value = items.filter((item) => {
+        const itemDate = new Date(`${item.createdAt}T00:00:00`);
+        const dayNumber = Math.round((itemDate - start) / 86400000);
+        return dayNumber === index;
+      }).length;
+      return { label, value };
+    });
+  }
+
+  if (selectedPeriod === 'Month') {
+    return ['W1', 'W2', 'W3', 'W4'].map((label, index) => {
+      const value = items.filter((item) => {
+        const day = Number(item.createdAt.slice(8, 10));
+        return Math.min(Math.floor((day - 1) / 7), 3) === index;
+      }).length;
+      return { label, value };
+    });
+  }
+
+  return ['Q1', 'Q2', 'Q3', 'Q4'].map((label, index) => {
+    const value = items.filter((item) => {
+      const month = Number(item.createdAt.slice(5, 7));
+      return Math.floor((month - 1) / 3) === index;
+    }).length;
+    return { label, value };
+  });
+}
+
 export default function StatisticsScreen() {
+  const db = useSQLiteContext();
   // El variable da bey7faz el period elli el user ekhtarha fo2.
   const [selectedPeriod, setSelectedPeriod] = useState('Week');
-  const stats = sampleStats;
+  const [stats, setStats] = useState({
+    consumed: 0,
+    discarded: 0,
+    wasteRate: 'N/A',
+    chartData: [],
+  });
+
+  const loadStatistics = useCallback(async () => {
+    try {
+      // Hena bngeb el consumed wel discarded 7asab el period.
+      const items = await db.getAllAsync(
+        `SELECT status, createdAt FROM Item
+         WHERE status IN ('Consumed', 'Discarded') AND createdAt >= ?`,
+        getPeriodStart(selectedPeriod)
+      );
+      const consumed = items.filter((item) => item.status === 'Consumed').length;
+      const discarded = items.filter((item) => item.status === 'Discarded').length;
+      const total = consumed + discarded;
+      const wasteRate = total === 0
+        ? 'N/A'
+        : `${Math.round((discarded / total) * 100)}%`;
+
+      setStats({
+        consumed,
+        discarded,
+        wasteRate,
+        chartData: makeChartData(items, selectedPeriod),
+      });
+    } catch (_error) {
+      setStats({ consumed: 0, discarded: 0, wasteRate: 'N/A', chartData: [] });
+    }
+  }, [db, selectedPeriod]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStatistics();
+    }, [loadStatistics])
+  );
+
+  const totalFinished = stats.consumed + stats.discarded;
+  const consumedPercent = totalFinished === 0
+    ? 0
+    : Math.round((stats.consumed / totalFinished) * 100);
+  const discardedPercent = totalFinished === 0 ? 0 : 100 - consumedPercent;
 
   return (
     <View style={styles.container}>
@@ -63,13 +163,18 @@ export default function StatisticsScreen() {
         </View>
 
         <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Items per week</Text>
+          <Text style={styles.chartTitle}>Items in selected period</Text>
 
           <View style={styles.barChartContainer}>
             <View style={styles.barsArea}>
-              {stats.weeklyData.map((bar) => (
+              {stats.chartData.map((bar) => (
                 <View key={bar.label} style={styles.barColumn}>
-                  <View style={[styles.barVisual, { height: bar.value * 14 }]} />
+                  <View
+                    style={[
+                      styles.barVisual,
+                      { height: Math.min(bar.value * 14, 110) },
+                    ]}
+                  />
                   <Text style={styles.barLabel}>{bar.label}</Text>
                 </View>
               ))}
@@ -85,7 +190,11 @@ export default function StatisticsScreen() {
           <View style={styles.pieRow}>
             <View style={styles.circleDiagram}>
               <View style={styles.circleInner}>
-                <Text style={styles.circleRatioText}>75 / 25</Text>
+                <Text style={styles.circleRatioText}>
+                  {totalFinished === 0
+                    ? 'No data'
+                    : `${consumedPercent} / ${discardedPercent}`}
+                </Text>
               </View>
             </View>
 
@@ -106,6 +215,9 @@ export default function StatisticsScreen() {
         <View style={styles.wasteRateContainer}>
           <Text style={styles.wasteRateText}>
             Waste rate: {stats.wasteRate}
+          </Text>
+          <Text style={styles.historyNote}>
+            Based on item creation dates. Status history is not available yet.
           </Text>
         </View>
       </ScrollView>
@@ -188,12 +300,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   barColumn: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    width: 44,
   },
   barVisual: {
-    width: 38,
+    width: '68%',
+    maxWidth: 38,
     backgroundColor: colors.primary,
     borderWidth: 0,
     borderRadius: 8,
@@ -276,5 +389,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.primaryDark,
+  },
+  historyNote: {
+    marginTop: 6,
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.mutedText,
   },
 });

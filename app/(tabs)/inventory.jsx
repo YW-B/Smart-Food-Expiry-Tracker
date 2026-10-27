@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,11 +7,12 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import ScreenHeader from '@/components/ScreenHeader';
 import FoodItemCard from '@/components/FoodItemCard';
-import { sampleItems } from '@/data/sampleData';
 import { colors, cardShadow } from '@/constants/theme';
+import { getCardDate, getDaysLeft } from '@/utils/dateHelpers';
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -20,12 +21,40 @@ const filterOptions = [
 ];
 
 export default function InventoryScreen() {
+  const db = useSQLiteContext();
   // El variables dol bey7afzo el search, el filter, wel sort elli el user ekhtarhom.
+  const [items, setItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('expiry');
 
-  const filteredItems = sampleItems.filter((item) => {
+  useFocusEffect(
+    useCallback(() => {
+      async function loadItems() {
+        try {
+          // Hena bngeb el items ma3 esm el category mn el database.
+          const savedItems = await db.getAllAsync(`
+            SELECT Item.*, Category.name AS category
+            FROM Item
+            JOIN Category ON Item.categoryId = Category.id
+          `);
+
+          const readyItems = savedItems.map((item) => ({
+            ...item,
+            daysLeft: getDaysLeft(item.expiryDate),
+            displayExpiryDate: getCardDate(item.expiryDate),
+          }));
+          setItems(readyItems);
+        } catch (_error) {
+          setItems([]);
+        }
+      }
+
+      loadItems();
+    }, [db])
+  );
+
+  const filteredItems = items.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -140,7 +169,7 @@ export default function InventoryScreen() {
             <FoodItemCard
               key={item.id}
               item={item}
-              subtitle={`${item.category} - ${item.expiryDate}`}
+              subtitle={`${item.category} - ${item.displayExpiryDate}`}
               badge={badgeText}
               onPress={() => openItem(item.id)}
             />
