@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -8,29 +8,50 @@ import {
   View,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import ScreenHeader from '@/components/ScreenHeader';
 import SimpleInput from '@/components/SimpleInput';
 import SimpleButton from '@/components/SimpleButton';
 import SimplePickerModal from '@/components/SimplePickerModal';
-import { sampleCategories } from '@/data/sampleData';
 import { colors, cardShadow } from '@/constants/theme';
+import { getDatabaseDate, getDaysLeft, getTodayDatabaseDate } from '@/utils/dateHelpers';
 
 const units = ['pcs', 'L', 'kg', 'g', 'pack', 'loaf', 'can'];
-const categoryNames = sampleCategories.map((category) => category.name);
 
 export default function AddItemScreen() {
   const params = useLocalSearchParams();
+  const db = useSQLiteContext();
 
   // Kol state variable hena bey7faz value el user katabha aw ekhtarha fel form.
   const [name, setName] = useState(params.scannedName ? String(params.scannedName) : '');
+  const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState('');
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState('');
   const [showUnitPicker, setShowUnitPicker] = useState(false);
   const [expiryDate, setExpiryDate] = useState('');
+  const [barcode, setBarcode] = useState(
+    params.scannedBarcode ? String(params.scannedBarcode) : ''
+  );
 
-  function saveItem() {
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  async function loadCategories() {
+    try {
+      // Hena bngeb el categories mn el database.
+      const savedCategories = await db.getAllAsync(
+        'SELECT * FROM Category ORDER BY name'
+      );
+      setCategories(savedCategories);
+    } catch (error) {
+      Alert.alert('Error', 'Could not load categories.');
+    }
+  }
+
+  async function saveItem() {
     if (name.trim() === '') {
       Alert.alert('Missing Field', 'Please enter an item name.');
       return;
@@ -52,16 +73,49 @@ export default function AddItemScreen() {
       return;
     }
 
-    Alert.alert(
-      'Item Saved',
-      `"${name}" has been added to your inventory! (Local state demo)`,
-      [
-        {
-          text: 'OK',
-          onPress: () => router.back(),
-        },
-      ]
-    );
+    const databaseDate = getDatabaseDate(expiryDate);
+    if (!databaseDate) {
+      Alert.alert('Invalid Field', 'Please enter a real date as DD / MM / YYYY.');
+      return;
+    }
+
+    const selectedCategory = categories.find((item) => item.name === category);
+    if (!selectedCategory) {
+      Alert.alert('Invalid Field', 'Please select a valid category.');
+      return;
+    }
+
+    try {
+      // Hena bn7faz el item fel SQLite.
+      const result = await db.runAsync(
+        `INSERT INTO Item
+          (name, categoryId, quantity, unit, expiryDate, barcode, status, createdAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        name.trim(),
+        selectedCategory.id,
+        Number(quantity),
+        unit,
+        databaseDate,
+        barcode.trim(),
+        'Active',
+        getTodayDatabaseDate()
+      );
+
+      if (getDaysLeft(databaseDate) <= 7) {
+        await db.runAsync(
+          `INSERT OR IGNORE INTO Notification (itemId, notifyDate, isSent, isRead)
+           VALUES (?, ?, 1, 0)`,
+          result.lastInsertRowId,
+          getTodayDatabaseDate()
+        );
+      }
+
+      Alert.alert('Item Saved', `"${name.trim()}" has been added to your inventory!`, [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } catch (error) {
+      Alert.alert('Error', 'Could not save the item. Please try again.');
+    }
   }
 
   function fillDateOneWeekFromNow() {
@@ -178,6 +232,17 @@ export default function AddItemScreen() {
           </View>
         </View>
 
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Barcode (optional)</Text>
+          <SimpleInput
+            value={barcode}
+            onChangeText={setBarcode}
+            placeholder="Enter barcode if available"
+            keyboardType="numeric"
+            style={styles.inputWithoutMargin}
+          />
+        </View>
+
         <View style={styles.buttonSpacer} />
 
         <SimpleButton
@@ -196,7 +261,7 @@ export default function AddItemScreen() {
       <SimplePickerModal
         visible={showCategoryPicker}
         title="Choose Category"
-        options={categoryNames}
+        options={categories.map((item) => item.name)}
         onSelect={chooseCategory}
         onClose={() => setShowCategoryPicker(false)}
       />
